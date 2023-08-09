@@ -8,7 +8,7 @@ services:
      - PGID=1000 # Group ID of your User
      - TZ=Etc/UTC # Your Timezone
    volumes:
-     - /home/$(whoami)/sonarr:/config # Path where you want your config file local:docker
+     - /home/$(whoami)/sonarr:/config # Path where you want your config file local:dockerhttps://github.com/zeus-homelab/docker/blob/main/sonarr.yml
      - /home/$(whoami)/plex/media:/media # optional - Path where you want your media files local:docker
      - /home/$(whoami)/downloads:/downloads # optional - Path where you want your download files local:docker
    #networks:
@@ -21,4 +21,4 @@ services:
    #external: true # external access out and to include other containers locally
 
 
-   #uncomment the network sections if you manually set a docker network.  You can change Web to whatever you like.
+#uncomment the network sections if you manually set a docker network.  You can change Web to whatever you like.
