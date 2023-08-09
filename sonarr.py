@@ -26,24 +26,6 @@ networks:
 """
     return docker_compose
 
-def main():
-    puid = input("Enter PUID: ")
-    pgid = input("Enter PGID: ")
-    tz = input("Enter Timezone (TZ): ")
-    config_path = input("Enter path for /config volume: ")
-    media_path = input("Enter path for /media volume (optional): ")
-    downloads_path = input("Enter path for /downloads volume (optional): ")
-
-    docker_compose_content = generate_docker_compose(puid, pgid, tz, config_path, media_path, downloads_path)
-
-    with open("docker-compose.yml", "w") as file:
-        file.write(docker_compose_content)
-
-    print("docker-compose.yml generated successfully!")
-
-if __name__ == "__main__":
-    main()
-
 def deploy_stack(portainer_url, api_token, stack_name, docker_compose_content):
     url = f"{portainer_url}/api/stacks"
     headers = {
