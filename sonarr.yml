@@ -1,0 +1,21 @@
+version: "2.1"
+services:
+ sonarr:
+   image: lscr.io/linuxserver/sonarr:latest
+   container_name: sonarr # name of container
+   environment:
+     - PUID=1000 # User ID of your User
+     - PGID=1000 # Group ID of your User
+     - TZ=Etc/UTC # Your Timezone
+   volumes:
+     - /home/$USER/sonarr:/config # Path where you want your config file local:docker
+     - /home/$USER/plex/media:/media # optional - Path where you want your media files local:docker
+     - /home/$USER/downloads:/downloads # optional - Path where you want your download files local:docker
+   networks:
+     - Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - 8989:8989 # Machine(outside, you can change):Container(inside, this cannot change)
+   restart: unless-stopped # will reboot and keep alive unless manually stopped
+networks:
+ Web: # Network Name
+   external: true # external access out and to include other containers locally
