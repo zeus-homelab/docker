@@ -1,0 +1,25 @@
+version: "2.1"
+services:
+ jackett:
+   image: lscr.io/linuxserver/jackett:latest
+   container_name: jackett # name of container
+   environment:
+     - PUID=1000 # User ID of your User
+     - PGID=1000 # Group ID of your User
+     - TZ=Etc/UTC # Your Timezone
+     - AUTO_UPDATE=true # optional
+     - RUN_OPTS= # optional - add any additional options
+   volumes:
+     - /home/$(whoami)/jackett:/config # Path where you want your config file - host file path:container file path
+     - /home/$(whoami)/downloads:/downloads # Path where you want your download files - host file path:container file path
+   #networks:
+     #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - 9117:9117 # Host(outside, you can change):Container(inside, this cannot change)
+   restart: unless-stopped # will reboot and keep alive unless manually stopped
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+#uncomment the network sections if you manually set a docker network.  You can change Web to whatever you like.
