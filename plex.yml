@@ -1,0 +1,16 @@
+version: "2.1"
+services:
+ plex:
+   image: lscr.io/linuxserver/plex:latest
+   container_name: plex # name of container
+   environment:
+     - PUID=1000 # User ID of your User
+     - PGID=1000 # Group ID of your User
+     - TZ=Etc/UTC # Your Timezone
+     - VERSION=docker # Version of Plex
+     - PLEX_CLAIM= # optional - go to plex.tv/claim if you are adding this to existing account/other plex servers (High Availablity)
+   volumes:
+     - /home/$(whoami)/plex/config:/config # Path where you want your config file - host file path:container file path
+     - /home/$(whoami)/plex/media:/downloads # Path where you want your media files - host file path:container file path
+   network_mode: host # This is NEEDED to work.  Uses the host network to reach out
+   restart: unless-stopped # will reboot and keep alive unless manually stopped
