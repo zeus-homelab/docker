@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 import requests
 
 def generate_docker_compose(puid, pgid, tz, config_path, media_path, downloads_path):
