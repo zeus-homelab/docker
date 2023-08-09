@@ -2,7 +2,7 @@
 
 FIRST CHANGE THE FILES TO BE EXECUTABLE!!!!!
 
-sudo chmod +x install.sh sonarr.py (etc... space between files)
+sudo chmod +x install.sh another.sh (etc... space between scripts)
 
 
 ---Docker and Portainer Installation---
