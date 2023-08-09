@@ -11,11 +11,14 @@ services:
      - /home/$(whoami)/sonarr:/config # Path where you want your config file local:docker
      - /home/$(whoami)/plex/media:/media # optional - Path where you want your media files local:docker
      - /home/$(whoami)/downloads:/downloads # optional - Path where you want your download files local:docker
-   networks:
-     - Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   #networks:
+     #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
    ports:
      - 8989:8989 # Machine(outside, you can change):Container(inside, this cannot change)
    restart: unless-stopped # will reboot and keep alive unless manually stopped
-networks:
- Web: # Network Name
-   external: true # external access out and to include other containers locally
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+   #uncomment the network sections if you manually set a docker network.  You can change Web to whatever you like.
