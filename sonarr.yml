@@ -9,7 +9,7 @@ services:
      - TZ=Etc/UTC # Your Timezone
    volumes:
      - /home/$(whoami)/sonarr:/config # Path where you want your config file local:dockerhttps://github.com/zeus-homelab/docker/blob/main/sonarr.yml
-     - /home/$(whoami)/plex/media:/media # Path where you want your media files local:docker
+     - /home/$(whoami)/media:/media # Path where you want your media files local:docker
      - /home/$(whoami)/downloads:/downloads # Path where you want your download files local:docker
    #networks:
      #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
