@@ -1,0 +1,18 @@
+version: '2.1'
+services:
+ trilium:
+   image: zadam/trilium
+   container_name: trilium  # name of container
+   restart: always
+   environment:
+     - TRILIUM_DATA_DIR=/home/node/trilium-data
+   #networks:
+     #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - "9080:8080"
+   volumes:
+     - /home/$(whoami)/trilium:/home/node/trilium-data # Path where you want your data files- Machine:Container
+
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
