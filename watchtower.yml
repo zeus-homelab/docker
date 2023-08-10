@@ -12,7 +12,7 @@ services:
     environment:    
       - WATCHTOWER_NOTIFICATIONS=gotify # dont change
       - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://ip-address-of-gotify:portnumber # change the ip address and port number to what you made for gotify.
-      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=AWuJt-FmQ3jwado # you get this from logging into your gotify and creating a token.  Paste the hash for that token here.
+      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=YOURTOKEN # you get this from logging into your gotify and creating a token.  Paste the hash for that token here.
     networks:
       - Web
 #networks:
