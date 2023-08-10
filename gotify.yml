@@ -1,0 +1,20 @@
+version: "3"
+services:
+ gotify:
+   image: gotify/server
+   restart: unless-stopped
+   container_name: gotify # name of container
+   #networks:
+     #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - 8080:80 # Machine(outside, you can change):Container(inside, this cannot change)
+   environment:
+     - GOTIFY_DEFAULTUSER_PASS=PASSWORD # Put a password here for the user to login to 
+   volumes:
+     - "/home/$(whoami)/gotify/data:/app/data" # Path where you want your data files local:docker
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+#uncomment the network sections if you manually set a docker network.  You can change the name Web to whatever that network is.
