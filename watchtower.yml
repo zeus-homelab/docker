@@ -1,0 +1,23 @@
+version: "3"
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower # container name
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: plex radarr sonarr jackett heimdall expressvpn deluge watchtower portainer gotify trilium --interval 3600 --cleanup # change to whatever your container names are seperated 
+                                                                                                                                 # by spaces.  Change interval of check for updates in 
+                                                                                                                                 # seconds.  --cleanup deletes old image.
+    restart: unless-stopped
+    environment:    
+      - WATCHTOWER_NOTIFICATIONS=gotify # dont change
+      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://ip-address-of-gotify:portnumber # change the ip address and port number to what you made for gotify.
+      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=AWuJt-FmQ3jwado # you get this from logging into your gotify and creating a token.  Paste the hash for that token here.
+    networks:
+      - Web
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+#uncomment the network sections if you manually set a docker network.  You can change the name Web to whatever that network is.
