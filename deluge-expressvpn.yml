@@ -1,0 +1,43 @@
+version: "2.1"
+services:
+ expressvpn:
+   container_name: expressvpn # name of container
+   image: polkaned/expressvpn
+   environment:
+     - ACTIVATION_CODE=YOURCODEHERE # Get this from logging into expressvpn website and retrieving the code. Put that code here.
+   cap_add:
+     - NET_ADMIN
+   devices: 
+     - /dev/net/tun
+   stdin_open: true
+   tty: true
+   command: /bin/bash
+   privileged: true
+   restart: unless-stopped
+   #networks:
+     #- VPN # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - 8112:8112 # Machine(outside, you can change):Container(inside, this cannot change)
+     - 6881:6881 # Machine(outside, you can change):Container(inside, this cannot change)
+     - 6881:6881/udp # Machine(outside, you can change):Container(inside, this cannot change)
+ deluge:
+   image: lscr.io/linuxserver/deluge:latest
+   container_name: deluge # name of container
+   environment:
+     - PUID=1000 # User ID of your User
+     - PGID=1000 # Group ID of your User
+     - TZ=Etc/UTC # Your Timezone
+     - DELUGE_LOGLEVEL=error # Optional
+   volumes:
+     - /home/$(whoami)/deluge:/config
+     - /home/$(whoami)/downloads:/downloads
+   network_mode: service:expressvpn # uses expressvpn containers network. Allowing Deluge to use the VPN.
+   depends_on:
+     - expressvpn # will not start unless expressvpn is started.
+   restart: unless-stopped
+#networks:
+ #VPN: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+#uncomment the network sections if you manually set a docker network.  You can change the name Web to whatever that network is.
