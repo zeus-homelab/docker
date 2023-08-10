@@ -21,4 +21,4 @@ services:
    #external: true # external access out and to include other containers locally
 
 
-#uncomment the network sections if you manually set a docker network.  You can change Web to whatever you like.
+#uncomment the network sections if you manually set a docker network.  You can change the name Web to whatever that network is.
