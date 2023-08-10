@@ -29,8 +29,8 @@ services:
      - TZ=Etc/UTC # Your Timezone
      - DELUGE_LOGLEVEL=error # Optional
    volumes:
-     - /home/$(whoami)/deluge:/config
-     - /home/$(whoami)/downloads:/downloads
+     - /home/$(whoami)/deluge:/config # Path where you want your config file - Machine:Container
+     - /home/$(whoami)/downloads:/downloads # Path where you want your download files - Machine:Container
    network_mode: service:expressvpn # uses expressvpn containers network. Allowing Deluge to use the VPN.
    depends_on:
      - expressvpn # will not start unless expressvpn is started.
