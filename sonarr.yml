@@ -14,7 +14,7 @@ services:
    #networks:
      #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
    ports:
-     - 8989:8989 # Host(outside, you can change):Container(inside, this cannot change)
+     - 7878:7878 # Host(outside, you can change):Container(inside, this cannot change)
    restart: unless-stopped # will reboot and keep alive unless manually stopped
 #networks:
  #Web: # Network Name
