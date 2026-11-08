@@ -229,6 +229,22 @@ public final class Level {
             saw(o + 4.5f, 0.6f, 1.0f);
             saw(o + 12.5f, 0.6f, 1.0f);
             note(o + 12.5f, 3.2f);
+        } else if (n.equals("goon3")) {
+            goon(o + 2);
+            goon(o + 8);
+            goon(o + 14);
+        } else if (n.equals("blockspike")) {
+            block(o + 4, 0, 6, 1);
+            spike(o + 8, 1, false);
+            note(o + 8.5f, 3.9f);
+        } else if (n.equals("padpit")) {
+            pad(o + 2);
+            spikes(o + 4, o + 5, 0, false);
+            note(o + 4.5f, 5.2f);
+        } else if (n.equals("sawduck")) {
+            saw(o + 4.5f, 0.5f, 0.8f);
+            saw(o + 12.5f, 2.9f, 0.8f);
+            note(o + 12.5f, 0.6f);
         } else {
             throw new IllegalArgumentException("drum chunk " + n);
         }
@@ -265,6 +281,16 @@ public final class Level {
             sour(o + 6, 4.5f, 2.5f, 0f);
             sour(o + 12, 4.5f, 2.5f, 3.14159f);
             note(o + 9f, 4.5f);
+        } else if (n.equals("wave")) {
+            block(o + 1, 0, 2, 3);
+            block(o + 5, 6, 2, 3);
+            block(o + 9, 0, 2, 3);
+            block(o + 13, 6, 2, 3);
+            note(o + 8f, 4.5f);
+        } else if (n.equals("narrow")) {
+            block(o + 3, 0, 13, 3.5f);
+            block(o + 3, 6, 13, 3);
+            note(o + 10f, 4.7f);
         } else {
             throw new IllegalArgumentException("trumpet chunk " + n);
         }
@@ -287,6 +313,11 @@ public final class Level {
         } else if (n.equals("sourT")) {
             sour(o + 8, 4.5f, 1.5f, 0f);
             spikes(o + 10, o + 12, 0, false);
+        } else if (n.equals("midbar")) {
+            block(o + 3, 4, 10, 1);
+            spikes(o + 6, o + 8, 0, false);
+            spikes(o + 10, o + 12, 8, true);
+            note(o + 11f, 5.6f);
         } else {
             throw new IllegalArgumentException("tamb chunk " + n);
         }
@@ -317,6 +348,26 @@ public final class Level {
                 + "|T:sour,tunnel,zig,saws"
                 + "|B:zag,sourT,upblock,zag"
                 + "|D:triple,goon2,orbpit,double,triple,mixed"),
+            new Level("Reggaeton Rumble", "laid-back dembow, sneaky goons", 96f, 55, 3, 1,
+                "D:rest,spike1,spike2,goon,rest,blockspike,spike2,sawduck"
+                + "|B:roll,up,zag"
+                + "|D:double,goon,padpit,spike2"
+                + "|T:fly,wave,pillars"
+                + "|D:blockspike,goon,double,rest"),
+            new Level("Disco Inferno", "four on the floor, hands in the air", 120f, 54, 4, 2,
+                "D:rest,blockspike,goon2,double,orbpit,sawduck,padpit"
+                + "|T:wave,narrow,saws,sour,pillars"
+                + "|D:goon3,stairs,rest,triple,ledges"
+                + "|B:up,midbar,zag,sourT"
+                + "|D:orbpit,goon2,blockspike,sawpair,double"),
+            new Level("Jungle Overdrive", "174 bpm drum & bass. good luck", 174f, 53, 5, 4,
+                "D:rest,double,goon3,orbpit,blockspike,triple,sawpair"
+                + "|T:narrow,zig,sour,wave,spikefield,saws"
+                + "|B:midbar,zag,sourT,upblock,zag"
+                + "|D:padpit,goon3,orbpit,triple,sawduck,mixed,double"
+                + "|T:wave,tunnel,narrow,sour"
+                + "|B:zag,midbar,sourT,zag"
+                + "|D:triple,goon3,orbpit,blockspike,double,triple"),
         };
     }
 }

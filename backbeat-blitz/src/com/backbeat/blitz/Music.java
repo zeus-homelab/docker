@@ -7,7 +7,7 @@ package com.backbeat.blitz;
  */
 final class Music {
     // [style][mode] -> {kick, snare, hat, perc}
-    // snare: x = full, g = ghost. hat: x = closed, o = open. perc: b = cowbell, r = rim
+    // snare: x = full, g = ghost. hat: x = closed, o = open. perc: b = cowbell, r = rim, c = clap
     private static final String[][][] DR = {
         { // 0: garage rock
             {"x.....x.x.......", "....x.......x...", "x.x.x.x.x.x.x.x.", "................"},
@@ -24,10 +24,28 @@ final class Music {
             {"x..x..x...x..x..", "....x.......x...", "xxxxxxxxxxxxxxxx", "................"},
             {"x.x...x...x.....", "....x.......x.x.", "................", "................"},
         },
+        { // 3: reggaeton dembow
+            {"x...x...x...x...", "...x..x....x..x.", "x.x.x.x.x.x.x.x.", "................"},
+            {"x...x...x...x...", "...x..x....x..x.", "..o...o...o...o.", "................"},
+            {"x...x...x...x...", "...x..x....x..x.", "................", "................"},
+        },
+        { // 4: disco
+            {"x...x...x...x...", "....x.......x...", "..o...o...o...o.", "....c.......c..."},
+            {"x...x...x...x...", "....x.......x...", "x.o.x.o.x.o.x.o.", "....c.......c..."},
+            {"x...x...x...x...", "....x.......x...", "................", "b.b...b.b.b...b."},
+        },
+        { // 5: jungle / drum & bass
+            {"x.........x.....", "....x..g.g..x..g", "x.xxx.xxx.xxx.xx", "................"},
+            {"x......x..x.....", "....x.......x...", "xxxxxxxxxxxxxxxx", "................"},
+            {"x.........x.....", "....x..g....x.g.", "................", "................"},
+        },
     };
-    private static final String[] BASS = {"0.0.....0.0.1.0.", "0..0..1.0..0.51.", "0.0...1.0.0...5."};
-    private static final String[] LEAD = {"x..x..x.x.x.x...", "x.x.x...x.xx.x..", "x..x..x...x.x.x."};
-    private static final int[][] PROG = {{0, 8, 3, 10}, {0, 10, 8, 7}, {0, 3, 10, 8}};
+    private static final String[] BASS = {"0.0.....0.0.1.0.", "0..0..1.0..0.51.", "0.0...1.0.0...5.",
+            "0..0..0.0..1..0.", "0.1.0.1.0.1.0.1.", "0.......0..5...."};
+    private static final String[] LEAD = {"x..x..x.x.x.x...", "x.x.x...x.xx.x..", "x..x..x...x.x.x.",
+            "x..x..x...x.x...", "x.x...x.x.x...x.", "x...x...x.x.x..."};
+    private static final int[][] PROG = {{0, 8, 3, 10}, {0, 10, 8, 7}, {0, 3, 10, 8},
+            {0, 5, 8, 7}, {0, 10, 8, 10}, {0, 3, 8, 7}};
 
     static boolean isMajor(int off) { return off == 8 || off == 3 || off == 10 || off == 7; }
 
@@ -89,6 +107,7 @@ final class Music {
             char pc = p[3].charAt(s);
             if (pc == 'b') a.trigger(a.cowbell, 0.5f, d);
             if (pc == 'r') a.trigger(a.rim, 0.5f, d);
+            if (pc == 'c') a.trigger(a.clap, 0.5f, d);
         }
         char h = p[2].charAt(s);
         if (h == 'x') a.trigger(a.hatC, (s & 3) == 0 ? 0.55f : 0.35f, d);

@@ -38,7 +38,8 @@ public class Shots {
         key = (key << 10) | (Math.round(s.y * 16) & 0x3FF);
         key = (key << 10) | ((Math.round(s.vy * 2) + 512) & 0x3FF);
         key = (key << 2) | s.mode;
-        key = (key << 3) | (s.grav > 0 ? 4 : 0) | (s.held ? 2 : 0) | (s.buffered ? 1 : 0);
+        key = (key << 5) | (s.grav > 0 ? 16 : 0) | (s.held ? 8 : 0) | (s.buffered ? 4 : 0)
+                | (s.bufT > 0 ? 2 : 0) | (s.coyote > 0 ? 1 : 0);
         key = (key << 12) | (s.usedCount & 0xFFF);
         if (!seen.add(key)) return false;
         for (boolean p : last ? new boolean[]{true, false} : new boolean[]{false, true}) {

@@ -8,6 +8,10 @@ package com.backbeat.blitz;
 public final class Sim {
     public static final int DRUM = 0, TRUMPET = 1, TAMB = 2;
     public static final float CEIL = 9f, PW = 0.9f, PH = 0.9f, DT = 1f / 240f;
+    /** Leeway: tap up to this long before landing / touching an orb and it still counts. */
+    public static final float BUFFER = 0.09f;
+    /** Leeway: you can still jump this long after running off a ledge. */
+    public static final float COYOTE = 0.06f;
     public static final int EV_JUMP = 1, EV_ORB = 2, EV_PAD = 3, EV_STOMP = 4, EV_FLIP = 5,
             EV_PORTAL = 6, EV_NOTE = 7, EV_HONK = 8, EV_LAND = 9;
 
@@ -18,6 +22,7 @@ public final class Sim {
     public float px, y, vy, yPrev;
     public int mode, grav;
     public boolean grounded, dead, finished, held, buffered;
+    public float bufT, coyote;
     public boolean[] used;
     public int usedCount, scan;
     public final int[] ev = new int[64];
@@ -49,6 +54,8 @@ public final class Sim {
         this.mode = mode;
         grounded = true;
         dead = finished = held = buffered = false;
+        bufT = 0;
+        coyote = 0;
         for (int i = 0; i < used.length; i++) used[i] = false;
         usedCount = 0;
         evN = 0;
@@ -66,6 +73,7 @@ public final class Sim {
         trV = o.trV; trA = o.trA; gT = o.gT; vT = o.vT;
         t = o.t; px = o.px; y = o.y; vy = o.vy; yPrev = o.yPrev; mode = o.mode; grav = o.grav;
         grounded = o.grounded; dead = o.dead; finished = o.finished; held = o.held; buffered = o.buffered;
+        bufT = o.bufT; coyote = o.coyote;
         used = o.used.clone();
         usedCount = o.usedCount;
         scan = o.scan;
@@ -84,8 +92,10 @@ public final class Sim {
         if (dead || finished) return;
         boolean edge = press && !held;
         held = press;
-        if (edge) buffered = true;
+        if (edge) { buffered = true; bufT = BUFFER; }
         if (!press) buffered = false;
+        if (bufT > 0) bufT -= DT;
+        if (coyote > 0) coyote -= DT;
         t += DT;
         px = (float) (t * speed);
         yPrev = y;
@@ -93,10 +103,12 @@ public final class Sim {
         if (mode == TRUMPET && edge) emit(EV_HONK, 0);
         switch (mode) {
             case DRUM:
-                if (grounded && press) {
+                if ((grounded || coyote > 0) && (press || bufT > 0)) {
                     vy = vJump;
                     grounded = false;
                     buffered = false;
+                    bufT = 0;
+                    coyote = 0;
                     emit(EV_JUMP, 0);
                 }
                 vy -= g * DT;
@@ -108,11 +120,13 @@ public final class Sim {
                 if (vy < -trV) vy = -trV;
                 break;
             default:
-                if (grounded && buffered) {
+                if ((grounded || coyote > 0) && (buffered || bufT > 0)) {
                     grav = -grav;
                     vy = -grav * vJump * 0.25f;
                     grounded = false;
                     buffered = false;
+                    bufT = 0;
+                    coyote = 0;
                     emit(EV_FLIP, 0);
                 }
                 vy -= grav * gT * DT;
@@ -135,6 +149,7 @@ public final class Sim {
         if (y > 11f) { y = 11f; if (vy > 0) vy = 0; }
         collide();
         if (grounded && !wasGrounded && !dead) emit(EV_LAND, 0);
+        if (grounded) coyote = COYOTE;
     }
 
     private static boolean overlap(float ax0, float ay0, float ax1, float ay1,
@@ -165,7 +180,7 @@ public final class Sim {
                 case Level.SOLID:
                     if (overlap(px, y, x1, y + PH, b.x, b.y, b.x + b.w, b.y + b.h)) {
                         float top = b.y + b.h, bot = b.y;
-                        if (yPrev >= top - 0.22f && vy <= 0.001f) {
+                        if (yPrev >= top - 0.28f && vy <= 0.001f) {
                             y = top;
                             vy = 0;
                             if (grav == 1) grounded = true;
@@ -180,23 +195,24 @@ public final class Sim {
                     }
                     break;
                 case Level.SPIKE: {
-                    float sy0 = b.down ? b.y + 0.45f : b.y;
-                    if (overlap(px, y, x1, y + PH, b.x + 0.3f, sy0, b.x + 0.7f, sy0 + 0.55f)) {
+                    float sy0 = b.down ? b.y + 0.5f : b.y;
+                    if (overlap(px, y, x1, y + PH, b.x + 0.33f, sy0, b.x + 0.67f, sy0 + 0.5f)) {
                         die();
                         return;
                     }
                     break;
                 }
                 case Level.SAW:
-                    if (circleHit(b.x, b.y, b.r * 0.78f)) { die(); return; }
+                    if (circleHit(b.x, b.y, b.r * 0.72f)) { die(); return; }
                     break;
                 case Level.GOON: {
                     float gx = lv.goonX(b, px);
-                    if (overlap(px, y, x1, y + PH, gx + 0.2f, 0, gx + 0.8f, 1.35f)) {
-                        if (mode == DRUM && vy < 0 && yPrev >= 0.85f) {
+                    if (overlap(px, y, x1, y + PH, gx + 0.25f, 0, gx + 0.75f, 1.3f)) {
+                        if (mode == DRUM && vy < 0 && yPrev >= 0.7f) {
                             use(i);
                             vy = vJump * 0.85f;
                             grounded = false;
+                        coyote = 0;
                             emit(EV_STOMP, i);
                         } else {
                             die();
@@ -207,15 +223,17 @@ public final class Sim {
                 }
                 case Level.SOUR: {
                     float cy = sourY(b);
-                    if (circleHit(b.x + 0.5f, cy, 0.36f)) { die(); return; }
+                    if (circleHit(b.x + 0.5f, cy, 0.32f)) { die(); return; }
                     break;
                 }
                 case Level.ORB: {
                     float dx = pcx - b.x, dy = pcy - b.y;
-                    if (buffered && dx * dx + dy * dy < 0.95f * 0.95f) {
+                    if ((buffered || bufT > 0) && dx * dx + dy * dy < 1.05f * 1.05f) {
                         use(i);
                         buffered = false;
+                        bufT = 0;
                         grounded = false;
+                        coyote = 0;
                         if (mode == DRUM) vy = vJump;
                         else if (mode == TRUMPET) vy = trV;
                         else { grav = -grav; vy = -grav * vJump * 0.4f; }
@@ -227,6 +245,7 @@ public final class Sim {
                     if (overlap(px, y, x1, y + PH, b.x, b.y, b.x + 1f, b.y + 0.4f)) {
                         use(i);
                         grounded = false;
+                        coyote = 0;
                         if (mode == DRUM) vy = vJump * 1.45f;
                         else if (mode == TRUMPET) vy = trV;
                         else { grav = -grav; vy = -grav * vJump * 0.4f; }
@@ -244,7 +263,7 @@ public final class Sim {
                     break;
                 case Level.NOTE: {
                     float dx = pcx - b.x, dy = pcy - b.y;
-                    if (dx * dx + dy * dy < 0.85f * 0.85f) {
+                    if (dx * dx + dy * dy < 0.95f * 0.95f) {
                         use(i);
                         emit(EV_NOTE, i);
                     }

@@ -25,6 +25,8 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
         "Hold to blow and rise, let go to sink",
         "Tap to flip gravity!",
     };
+    /** Song-list order, easiest first (indices stay stable so saved bests keep working). */
+    private static final int[] ORDER = {0, 3, 1, 4, 2, 5};
     private static final int[] SCALE = {0, 2, 3, 5, 7, 8, 10, 12, 14, 15};
 
     private final Audio audio;
@@ -327,16 +329,16 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
                 break;
             case SELECT: {
                 if (y < 1.6f * bp && x < 4 * bp) { state = TITLE; break; }
-                float bw = 7.4f * bp, bh = 1.1f * bp, by = H - 1.15f * bp;
+                float bw = 7.4f * bp, bh = 0.95f * bp, by = H - 0.75f * bp;
                 if (Math.abs(x - W / 2f) < bw / 2 && Math.abs(y - by) < bh / 2 + 0.2f * bp) {
                     practice = !practice;
                     prefs.edit().putBoolean("practice", practice).apply();
                     audio.play(audio.cowbell, 0.6f);
                     break;
                 }
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < ORDER.length; i++) {
                     RectF r = cardRect(i);
-                    if (r.contains(x, y)) { startLevel(i); break; }
+                    if (r.contains(x, y)) { startLevel(ORDER[i]); break; }
                 }
                 break;
             }
@@ -1364,64 +1366,69 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
         drawParticles(c);
     }
 
-    private RectF cardRect(int i) {
-        float cw = W * 0.27f, gap = W * 0.035f;
-        float x0 = W / 2f - (3 * cw + 2 * gap) / 2 + i * (cw + gap);
-        return new RectF(x0, H * 0.2f, x0 + cw, H * 0.2f + H * 0.56f);
+    private RectF cardRect(int slot) {
+        int col = slot % 3, row = slot / 3;
+        float cw = W * 0.29f, gap = W * 0.025f, ch = H * 0.31f, rgap = H * 0.025f;
+        float x0 = W / 2f - (3 * cw + 2 * gap) / 2 + col * (cw + gap);
+        float y0 = H * 0.185f + row * (ch + rgap);
+        return new RectF(x0, y0, x0 + cw, y0 + ch);
+    }
+
+    private float fit(String s, float size, float maxW) {
+        pt.setTextSize(size);
+        while (pt.measureText(s) > maxW && size > bp * 0.2f) {
+            size *= 0.92f;
+            pt.setTextSize(size);
+        }
+        return size;
     }
 
     private void drawSelect(Canvas c, float pulse) {
         camX = menuX;
         drawBackdrop(c, 0, pulse);
         drawFloor(c, 0, false);
-        textOutlined(c, "PICK A SONG", W / 2f, H * 0.13f, bp * 0.9f, 0xFFFFFFFF, 0xFF15101F);
+        textOutlined(c, "PICK A SONG", W / 2f, H * 0.12f, bp * 0.85f, 0xFFFFFFFF, 0xFF15101F);
         pt.setTextAlign(Paint.Align.LEFT);
         text(c, "< BACK", bp * 0.5f, bp * 0.9f, bp * 0.45f, 0xFFFFFFFF);
         pt.setTextAlign(Paint.Align.CENTER);
-        for (int i = 0; i < 3; i++) {
+        float ph = beatPhase();
+        for (int slot = 0; slot < ORDER.length; slot++) {
+            int i = ORDER[slot];
             Level l = levels[i];
-            RectF r = cardRect(i);
-            int col = MODE_COL[i];
+            RectF r = cardRect(slot);
+            int col = MODE_COL[slot % 3];
             p.setColor(0xFF15101F);
-            rf.set(r.left, r.top + bp * 0.12f, r.right, r.bottom + bp * 0.12f);
-            c.drawRoundRect(rf, bp * 0.4f, bp * 0.4f, p);
+            rf.set(r.left, r.top + bp * 0.1f, r.right, r.bottom + bp * 0.1f);
+            c.drawRoundRect(rf, bp * 0.35f, bp * 0.35f, p);
             p.setColor(0xF0221A3A);
-            c.drawRoundRect(r, bp * 0.4f, bp * 0.4f, p);
+            c.drawRoundRect(r, bp * 0.35f, bp * 0.35f, p);
             ps.setColor(col);
-            ps.setStrokeWidth(bp * 0.08f);
-            c.drawRoundRect(r, bp * 0.4f, bp * 0.4f, ps);
-            float cx = r.centerX();
-            float y = r.top + bp * 1.0f;
-            float nameSize = bp * 0.62f;
-            pt.setTextSize(nameSize);
-            while (pt.measureText(l.name) > r.width() * 0.88f && nameSize > bp * 0.3f) {
-                nameSize *= 0.92f;
-                pt.setTextSize(nameSize);
-            }
-            text(c, l.name, cx, y, nameSize, col);
-            float sub = bp * 0.3f;
-            pt.setTextSize(sub);
-            while (pt.measureText(l.subtitle) > r.width() * 0.9f && sub > bp * 0.2f) { sub *= 0.92f; pt.setTextSize(sub); }
-            text(c, l.subtitle, cx, y + bp * 0.55f, sub, 0xFFCFC8E8);
-            drawInstrument(c, i == 0 ? Sim.DRUM : i == 1 ? Sim.TAMB : Sim.TRUMPET, cx,
-                    r.top + r.height() * 0.42f - 4 * beatPhase() * (1 - beatPhase()) * bp * 0.3f, bp * 0.6f, 0);
+            ps.setStrokeWidth(bp * 0.07f);
+            c.drawRoundRect(r, bp * 0.35f, bp * 0.35f, ps);
+            float cx = r.centerX(), u = r.height();
+            // little hopping instrument in the corner
+            drawInstrument(c, slot % 3 == 0 ? Sim.DRUM : slot % 3 == 1 ? Sim.TAMB : Sim.TRUMPET,
+                    r.right - bp * 0.75f, r.top + bp * 0.75f - 4 * ph * (1 - ph) * bp * 0.25f, bp * 0.32f, 0);
+            float ns = fit(l.name, bp * 0.55f, r.width() - bp * 2.0f);
+            text(c, l.name, cx - bp * 0.35f, r.top + u * 0.24f, ns, col);
+            float ss = fit(l.subtitle, bp * 0.3f, r.width() * 0.9f);
+            text(c, l.subtitle, cx, r.top + u * 0.4f, ss, 0xFFCFC8E8);
             String stars = "";
-            for (int k = 0; k < 3; k++) stars += k < l.stars ? "★" : "☆";
-            text(c, stars, cx, r.top + r.height() * 0.62f, bp * 0.55f, 0xFFFFE14D);
-            text(c, (int) l.bpm + " BPM", cx, r.top + r.height() * 0.71f, bp * 0.4f, 0xFFFFFFFF);
+            for (int k = 0; k < Math.max(3, l.stars); k++) stars += k < l.stars ? "\u2605" : "\u2606";
+            text(c, stars + "   " + (int) l.bpm + " BPM", cx, r.top + u * 0.58f, bp * 0.4f, 0xFFFFE14D);
             int best = prefs.getInt("best" + i, 0), bestP = prefs.getInt("bestp" + i, 0);
             int nb = prefs.getInt("notes" + i, 0);
-            float bw = r.width() * 0.75f, bx = cx - bw / 2, by = r.top + r.height() * 0.77f, bh = bp * 0.22f;
+            float bw = r.width() * 0.78f, bx = cx - bw / 2, by = r.top + u * 0.68f, bh = bp * 0.2f;
             p.setColor(0x44FFFFFF);
             rf.set(bx, by, bx + bw, by + bh);
             c.drawRoundRect(rf, bh / 2, bh / 2, p);
             p.setColor(col);
             rf.set(bx, by, bx + bw * best / 100f, by + bh);
             c.drawRoundRect(rf, bh / 2, bh / 2, p);
-            text(c, best >= 100 ? "CLEARED!  ♫ " + nb + "/" + l.totalNotes : "BEST " + best + "%   practice " + bestP + "%",
-                    cx, by + bh + bp * 0.5f, bp * 0.3f, best >= 100 ? 0xFF7CFF6B : 0xFFCFC8E8);
+            text(c, best >= 100 ? "CLEARED!  \u266B " + nb + "/" + l.totalNotes : "BEST " + best + "%   practice " + bestP + "%",
+                    cx, r.top + u * 0.88f, bp * 0.3f, best >= 100 ? 0xFF7CFF6B : 0xFFCFC8E8);
         }
-        button(c, practice ? "PRACTICE MODE: ON" : "PRACTICE MODE: OFF", W / 2f, H - 1.15f * bp, 7.4f * bp, 1.1f * bp,
+        button(c, practice ? "PRACTICE MODE: ON" : "PRACTICE MODE: OFF", W / 2f, H - 0.75f * bp, 7.4f * bp, 0.95f * bp,
                 practice ? 0xFF7CFF6B : 0xFFBDB6D6);
         drawParticles(c);
     }

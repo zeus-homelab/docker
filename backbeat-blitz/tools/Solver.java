@@ -18,13 +18,18 @@ public class Solver {
                 for (Level lv : Level.all()) {
                     Sim base = new Sim(lv);
                     for (int c = 0; c < lv.cpStep.length; c++) {
-                        Sim s = base.copy();
-                        s.reset(lv.cpStep[c], lv.cpMode[c]);
-                        K = k;
-                        seen = new HashSet<Long>();
-                        best = 0;
-                        nodes = 0;
-                        boolean r = dfs(s, false);
+                        boolean r = true;
+                        // try several input phases: a level must be beatable however your taps line up
+                        for (int ph = 0; ph < 3 && r; ph++) {
+                            Sim s = base.copy();
+                            s.reset(lv.cpStep[c], lv.cpMode[c]);
+                            for (int i = 0; i < ph * k / 3; i++) s.step(false);
+                            K = k;
+                            seen = new HashSet<Long>();
+                            best = 0;
+                            nodes = 0;
+                            r = dfs(s, false);
+                        }
                         System.out.printf("%-16s cp%d (x=%4d) %s  reached x=%.1f / %d  nodes=%d%n",
                                 lv.name, c, lv.cpStep[c], r ? "OK  " : "FAIL", best, lv.endStep - 8, nodes);
                         ok &= r;
@@ -45,7 +50,8 @@ public class Solver {
         key = (key << 10) | (Math.round(s.y * 16) & 0x3FF);
         key = (key << 10) | ((Math.round(s.vy * 2) + 512) & 0x3FF);
         key = (key << 2) | s.mode;
-        key = (key << 3) | (s.grav > 0 ? 4 : 0) | (s.held ? 2 : 0) | (s.buffered ? 1 : 0);
+        key = (key << 5) | (s.grav > 0 ? 16 : 0) | (s.held ? 8 : 0) | (s.buffered ? 4 : 0)
+                | (s.bufT > 0 ? 2 : 0) | (s.coyote > 0 ? 1 : 0);
         key = (key << 12) | (s.usedCount & 0xFFF);
         if (!seen.add(key)) return false;
         if (s.px > best) best = s.px;

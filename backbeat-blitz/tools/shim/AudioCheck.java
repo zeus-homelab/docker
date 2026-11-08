@@ -4,7 +4,7 @@ import java.io.*;
 public class AudioCheck {
   public static void main(String[] a) throws Exception {
     Level[] L = Level.all();
-    for (int li = 0; li < 3; li++) {
+    for (int li = 0; li < L.length; li++) {
       Audio au = new Audio(); au.start(); Thread.sleep(50);
       synchronized (AudioTrack.rec) { AudioTrack.rec.reset(); }
       au.startSong(L[li], 0);

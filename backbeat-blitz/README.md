@@ -34,6 +34,11 @@ Fly through the **instrument portals** to switch. The music changes with you.
 - **Drum Pads** (yellow): launch you extra high
 - **♫ Notes**: collect them for points
 
+### Leeway
+- **Input buffer:** a tap up to 90 ms before you land, or before you reach a cymbal, still counts.
+- **Coyote time:** you can still jump 60 ms after running off a ledge.
+- Spikes, saws, goons and sour notes have hitboxes a little smaller than they look.
+
 ### Scoring
 Jumps, flips and cymbal hits that land within ~55 ms of the beat score **PERFECT**, within ~110 ms **GREAT**.
 Chain them for a **beat combo** score multiplier.
@@ -43,9 +48,13 @@ Chain them for a **beat combo** score multiplier.
 | | Song | BPM | Style |
 |---|---|---|---|
 | ★ | Garage Groove | 110 | backyard rock |
+| ★ | Reggaeton Rumble | 96 | laid-back dembow |
 | ★★ | Marching Mayhem | 128 | drumline funk with cowbell |
+| ★★ | Disco Inferno | 120 | four-on-the-floor disco |
 | ★★★ | Breakbeat Blitz | 150 | breakbeat chaos |
+| ★★★★ | Jungle Overdrive | 174 | drum & bass |
 
+![songs](screenshots/select.png)
 ![drum](screenshots/drum.png)
 ![trumpet](screenshots/trumpet.png)
 ![tambourine](screenshots/tambourine.png)
@@ -55,7 +64,7 @@ Chain them for a **beat combo** score multiplier.
 - **No audio files.** Every drum, cymbal, bass note and trumpet note is synthesized when the app starts. A step sequencer sends them to `AudioTrack` with sample-accurate timing.
 - The game clock comes from the audio hardware's playback position, so the visuals stay in sync with what you hear.
 - The physics constants come from each song's tempo (`Sim.java`), so every song feels the same at its own speed.
-- `tools/Solver.java` is a brute-force bot. It proves every level, from every practice checkpoint, can be beaten even when inputs can only change every 1/20 s. It runs on every build.
+- `tools/Solver.java` is a brute-force bot. It proves every level, from every practice checkpoint, can be beaten even when inputs can only change every 1/12 s, whatever the input phase. It runs on every build.
 
 ## Building
 No Gradle or Google SDK download needed. It uses the Ubuntu/Debian packages:

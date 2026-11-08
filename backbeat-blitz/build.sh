@@ -9,7 +9,7 @@ rm -rf "$B" && mkdir -p "$B/gen" "$B/classes"
 
 echo "== verifying every level is beatable"
 javac -nowarn -d "$B/solver" src/com/backbeat/blitz/Level.java src/com/backbeat/blitz/Sim.java tools/Solver.java
-java -cp "$B/solver" Solver 12
+java -cp "$B/solver" Solver 20
 
 echo "== resources"
 aapt package -f -m -J "$B/gen" -M AndroidManifest.xml -S res -I "$SDK" -F "$B/app.unsigned.apk"
