@@ -28,6 +28,9 @@ Requires Android 7.0 or newer. The game plays in landscape.
 
 ## Project layout
 - `app/assets/index.html`: the whole game (HTML5 canvas + synthesized WebAudio, no external assets).
+  The soundtrack is original and generated live: *Midnight Waltz* (title), *Workshop Bounce* (builder),
+  *Night Shift* (gameplay, adds layers as the mess and the clock rise), *Blackout* (power outages),
+  *Prankster's Parade* (night 5), plus clock-tower bells every hour.
   Open it in a desktop browser to play-test (WASD/arrows, Shift = sprint, Space = roar, E = power, Esc = pause).
 - `app/src/.../MainActivity.java`: full-screen WebView wrapper.
 - `build.sh`: builds and signs the APK **without the Android SDK**, using Maven Central artifacts only
