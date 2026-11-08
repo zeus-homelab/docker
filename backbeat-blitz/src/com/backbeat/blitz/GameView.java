@@ -26,7 +26,9 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
         "Tap to flip gravity!",
     };
     /** Song-list order, easiest first (indices stay stable so saved bests keep working). */
-    private static final int[] ORDER = {0, 3, 1, 4, 2, 5};
+    private static final int[] ORDER = {3, 8, 0, 10, 4, 1, 9, 6, 2, 7, 5};
+    private static final int PER_PAGE = 6;
+    private int page;
     private static final int[] SCALE = {0, 2, 3, 5, 7, 8, 10, 12, 14, 15};
 
     private final Audio audio;
@@ -336,9 +338,13 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
                     audio.play(audio.cowbell, 0.6f);
                     break;
                 }
-                for (int i = 0; i < ORDER.length; i++) {
-                    RectF r = cardRect(i);
-                    if (r.contains(x, y)) { startLevel(ORDER[i]); break; }
+                int pages = (ORDER.length + PER_PAGE - 1) / PER_PAGE;
+                if (y > H - 1.4f * bp && x < W * 0.22f && page > 0) { page--; audio.play(audio.tomH, 0.6f); break; }
+                if (y > H - 1.4f * bp && x > W * 0.78f && page < pages - 1) { page++; audio.play(audio.tomH, 0.6f); break; }
+                for (int slot = 0; slot < PER_PAGE; slot++) {
+                    int oi = page * PER_PAGE + slot;
+                    if (oi >= ORDER.length) break;
+                    if (cardRect(slot).contains(x, y)) { startLevel(ORDER[oi]); break; }
                 }
                 break;
             }
@@ -1387,16 +1393,22 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
         camX = menuX;
         drawBackdrop(c, 0, pulse);
         drawFloor(c, 0, false);
+        int pages = (ORDER.length + PER_PAGE - 1) / PER_PAGE;
         textOutlined(c, "PICK A SONG", W / 2f, H * 0.12f, bp * 0.85f, 0xFFFFFFFF, 0xFF15101F);
+        pt.setTextAlign(Paint.Align.RIGHT);
+        text(c, "PAGE " + (page + 1) + "/" + pages, W - bp * 0.5f, bp * 0.9f, bp * 0.4f, 0xFFCFC8E8);
+        pt.setTextAlign(Paint.Align.CENTER);
         pt.setTextAlign(Paint.Align.LEFT);
         text(c, "< BACK", bp * 0.5f, bp * 0.9f, bp * 0.45f, 0xFFFFFFFF);
         pt.setTextAlign(Paint.Align.CENTER);
         float ph = beatPhase();
-        for (int slot = 0; slot < ORDER.length; slot++) {
-            int i = ORDER[slot];
+        for (int slot = 0; slot < PER_PAGE; slot++) {
+            int oi = page * PER_PAGE + slot;
+            if (oi >= ORDER.length) break;
+            int i = ORDER[oi];
             Level l = levels[i];
             RectF r = cardRect(slot);
-            int col = MODE_COL[slot % 3];
+            int col = MODE_COL[oi % 3];
             p.setColor(0xFF15101F);
             rf.set(r.left, r.top + bp * 0.1f, r.right, r.bottom + bp * 0.1f);
             c.drawRoundRect(rf, bp * 0.35f, bp * 0.35f, p);
@@ -1407,7 +1419,7 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
             c.drawRoundRect(r, bp * 0.35f, bp * 0.35f, ps);
             float cx = r.centerX(), u = r.height();
             // little hopping instrument in the corner
-            drawInstrument(c, slot % 3 == 0 ? Sim.DRUM : slot % 3 == 1 ? Sim.TAMB : Sim.TRUMPET,
+            drawInstrument(c, oi % 3 == 0 ? Sim.DRUM : oi % 3 == 1 ? Sim.TAMB : Sim.TRUMPET,
                     r.right - bp * 0.75f, r.top + bp * 0.75f - 4 * ph * (1 - ph) * bp * 0.25f, bp * 0.32f, 0);
             float ns = fit(l.name, bp * 0.55f, r.width() - bp * 2.0f);
             text(c, l.name, cx - bp * 0.35f, r.top + u * 0.24f, ns, col);
@@ -1430,6 +1442,8 @@ public final class GameView extends SurfaceView implements SurfaceHolder.Callbac
         }
         button(c, practice ? "PRACTICE MODE: ON" : "PRACTICE MODE: OFF", W / 2f, H - 0.75f * bp, 7.4f * bp, 0.95f * bp,
                 practice ? 0xFF7CFF6B : 0xFFBDB6D6);
+        if (page > 0) button(c, "< PREV", W * 0.12f, H - 0.75f * bp, 3.6f * bp, 0.95f * bp, 0xFFFFC23D);
+        if (page < pages - 1) button(c, "MORE SONGS >", W * 0.86f, H - 0.75f * bp, 4.6f * bp, 0.95f * bp, 0xFFFFC23D);
         drawParticles(c);
     }
 }

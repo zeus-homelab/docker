@@ -14,13 +14,17 @@ import java.util.HashMap;
  */
 public final class Audio implements Runnable {
     public static final int SR = 44100;
-    private static final int BLOCK = 256, MAXV = 48;
+    private static final int BLOCK = 256, MAXV = 72;
 
     public float[] kick, snare, ghost, hatC, hatO, clap, tomH, tomM, tomL, crash, ride, tamb, cowbell,
-            scratch, rim, whoosh;
-    private final HashMap<Integer, float[]> bassC = new HashMap<Integer, float[]>();
-    private final HashMap<Integer, float[]> leadC = new HashMap<Integer, float[]>();
-    private final HashMap<Integer, float[]> chimeC = new HashMap<Integer, float[]>();
+            scratch, rim, whoosh, shaker, congaH, congaL, agogoH, agogoL, whistle, surdo;
+
+    /** Pitched instruments, synthesized on demand and cached per note. */
+    public static final int BASS = 0, BRASS = 1, CHIME = 2, ORGAN = 3, STEEL = 4, PLUCK = 5, KEYS = 6,
+            GUITAR = 7, CHIP = 8;
+    private final HashMap<Integer, float[]> notes = new HashMap<Integer, float[]>();
+    private Level warmedFor;
+    private boolean warmed;
 
     private final Object lock = new Object();
     private final float[][] vData = new float[MAXV][];
@@ -38,7 +42,7 @@ public final class Audio implements Runnable {
     private long songStartFrame;
     private int songBase, nextStep;
     private double stepFrames;
-    private float menuBpm = 100f;
+    private float menuBpm = Music.MENU_BPM;
 
     // clock
     private final AudioTimestamp ts = new AudioTimestamp();
@@ -102,7 +106,12 @@ public final class Audio implements Runnable {
     // ================================================================ song control
 
     public void startSong(Level lv, int fromStep) {
-        warm(lv == null ? 57 : lv.root);
+        if (lv != warmedFor || !warmed) { // keep only the current song's notes in memory
+            synchronized (notes) { notes.clear(); }
+            warmedFor = lv;
+            warmed = true;
+        }
+        Music.warm(this, lv);
         synchronized (lock) {
             for (int i = 0; i < MAXV; i++) if (vData[i] != null && vData[i] != crash && vData[i] != scratch) vData[i] = null;
             song = lv;
@@ -177,27 +186,30 @@ public final class Audio implements Runnable {
         synchronized (lock) { trigger(d, gain, 0); }
     }
 
-    public float[] chime(int midi) { return get(chimeC, midi, 2); }
-    public float[] lead(int midi) { return get(leadC, midi, 1); }
-    public float[] bass(int midi) { return get(bassC, midi, 0); }
+    public float[] chime(int midi) { return note(CHIME, midi); }
+    public float[] lead(int midi) { return note(BRASS, midi); }
+    public float[] bass(int midi) { return note(BASS, midi); }
 
-    private void warm(int r) {
-        for (int k = -1; k < 24; k++) {
-            bass(r - 24 + k);
-            lead(r + k);
-            chime(r + 12 + k);
-        }
-    }
-
-    private float[] get(HashMap<Integer, float[]> m, int midi, int kind) {
-        synchronized (m) {
-            float[] d = m.get(midi);
-            if (d == null) {
-                d = kind == 0 ? mkBass(midi) : kind == 1 ? mkLead(midi) : mkChime(midi);
-                m.put(midi, d);
+    public float[] note(int inst, int midi) {
+        midi = Math.max(12, Math.min(108, midi));
+        Integer key = inst * 256 + midi;
+        float[] d;
+        synchronized (notes) { d = notes.get(key); }
+        if (d == null) { // synthesize outside the lock so the mixer is never held up
+            switch (inst) {
+                case BASS: d = mkBass(midi); break;
+                case BRASS: d = mkLead(midi); break;
+                case ORGAN: d = mkOrgan(midi); break;
+                case STEEL: d = mkSteel(midi); break;
+                case PLUCK: d = mkPluck(midi); break;
+                case KEYS: d = mkKeys(midi); break;
+                case GUITAR: d = mkGuitar(midi); break;
+                case CHIP: d = mkChip(midi); break;
+                default: d = mkChime(midi); break;
             }
-            return d;
+            synchronized (notes) { notes.put(key, d); }
         }
+        return d;
     }
 
     /** Called from the mixer thread with the lock held. */
@@ -368,6 +380,54 @@ public final class Audio implements Runnable {
             lp += c * (rnd() - lp);
             whoosh[i] = lp * (float) Math.sin(Math.PI * t / 0.4f) * 0.8f;
         }
+        // shaker: soft-attack band of noise
+        shaker = new float[n(0.09f)];
+        prev = 0;
+        lp = 0;
+        for (int i = 0; i < shaker.length; i++) {
+            float t = i / (float) SR;
+            float nz = rnd();
+            float hp = nz - prev;
+            prev = nz;
+            lp += 0.5f * (hp - lp);
+            shaker[i] = lp * Math.min(1, t / 0.015f) * (float) Math.exp(-t * 40) * 0.8f;
+        }
+        congaH = mkConga(340);
+        congaL = mkConga(230);
+        agogoH = mkBell(930);
+        agogoL = mkBell(700);
+        surdo = mkTom(62);
+        // samba whistle: a fast warbling trill
+        whistle = new float[n(0.16f)];
+        ph = 0;
+        for (int i = 0; i < whistle.length; i++) {
+            float t = i / (float) SR;
+            float f = 2400 + 180 * (float) Math.sin(2 * Math.PI * 28 * t);
+            ph += 2 * Math.PI * f / SR;
+            whistle[i] = ((float) Math.sin(ph) + rnd() * 0.15f) * Math.min(1, t / 0.01f) * Math.min(1, (0.16f - t) / 0.03f) * 0.35f;
+        }
+    }
+
+    private float[] mkConga(float f0) {
+        float[] d = new float[n(0.22f)];
+        double ph = 0;
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            float f = f0 * (1 + 0.25f * (float) Math.exp(-t * 60));
+            ph += 2 * Math.PI * f / SR;
+            d[i] = ((float) Math.sin(ph) + (t < 0.004f ? rnd() * 0.5f : 0)) * (float) Math.exp(-t * 16) * 0.8f;
+        }
+        return d;
+    }
+
+    private float[] mkBell(float f) {
+        float[] d = new float[n(0.25f)];
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            d[i] = (float) (Math.sin(2 * Math.PI * f * t) + 0.6 * Math.sin(2 * Math.PI * f * 2.72 * t))
+                    * (float) Math.exp(-t * 14) * 0.35f * Math.min(1, t / 0.001f);
+        }
+        return d;
     }
 
     private static float sq(float ph) { return (ph - (float) Math.floor(ph)) < 0.5f ? 1f : -1f; }
@@ -452,6 +512,99 @@ public final class Audio implements Runnable {
             lp += c * ((saw + sqr) * 0.5f - lp);
             float env = Math.min(1, t / 0.02f) * Math.min(1, (len - t) / 0.08f);
             d[i] = lp * env * 1.1f;
+        }
+        return d;
+    }
+
+    private float[] mkOrgan(int midi) {
+        float f = hz(midi), len = 0.2f;
+        float[] d = new float[n(len)];
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            double w = 2 * Math.PI * f * t;
+            float v = (float) (Math.sin(w) + 0.6 * Math.sin(2 * w) + 0.35 * Math.sin(3 * w) + 0.2 * Math.sin(4 * w));
+            float env = Math.min(1, t / 0.004f) * Math.min(1, (len - t) / 0.04f) * (0.75f + 0.25f * (float) Math.exp(-t * 30));
+            d[i] = v * env * 0.4f;
+        }
+        return d;
+    }
+
+    private float[] mkSteel(int midi) {
+        float f = hz(midi), len = 0.7f;
+        float[] d = new float[n(len)];
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            double w = 2 * Math.PI * f * t;
+            float body = (float) (Math.sin(w) + 0.5 * Math.sin(2 * w) * Math.exp(-t * 3) + 0.3 * Math.sin(3.01 * w) * Math.exp(-t * 5));
+            float ping = (float) (Math.sin(5.1 * w) * Math.exp(-t * 40)) * 0.3f;
+            d[i] = (body + ping) * (float) Math.exp(-t * 5) * Math.min(1, t / 0.002f) * 0.5f;
+        }
+        return d;
+    }
+
+    private float[] mkPluck(int midi) {
+        float f = hz(midi), len = 0.24f;
+        float[] d = new float[n(len)];
+        float lp = 0;
+        double ph = 0;
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            ph += f / SR;
+            float sq = (ph - Math.floor(ph)) < 0.5 ? 1f : -1f;
+            float c = 0.05f + 0.5f * (float) Math.exp(-t * 25);
+            lp += c * (sq - lp);
+            d[i] = lp * (float) Math.exp(-t * 11) * Math.min(1, t / 0.002f) * 0.45f;
+        }
+        return d;
+    }
+
+    private float[] mkKeys(int midi) {
+        float f = hz(midi), len = 0.55f;
+        float[] d = new float[n(len)];
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            double w = 2 * Math.PI * f * t;
+            float v = (float) (Math.sin(w + 0.8 * Math.sin(w) * Math.exp(-t * 6)) + 0.25 * Math.sin(2 * w)
+                    + 0.25 * Math.sin(7.1 * w) * Math.exp(-t * 25));
+            d[i] = v * (float) Math.exp(-t * 4) * Math.min(1, t / 0.003f) * Math.min(1, (len - t) / 0.05f) * 0.45f;
+        }
+        return d;
+    }
+
+    /** Karplus-Strong plucked string with a touch of drive: surf guitar twang. */
+    private float[] mkGuitar(int midi) {
+        float f = hz(midi), len = 0.5f;
+        float[] d = new float[n(len)];
+        int N = Math.max(2, Math.round(SR / f));
+        float[] buf = new float[N];
+        float lp = 0;
+        for (int i = 0; i < N; i++) { lp += 0.6f * (rnd() - lp); buf[i] = lp; }
+        int idx = 0;
+        float last = 0;
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            float cur = buf[idx];
+            float nxt = buf[(idx + 1) % N];
+            buf[idx] = 0.4985f * (cur + nxt);
+            idx = (idx + 1) % N;
+            last = cur;
+            float trem = 1 + 0.12f * (float) Math.sin(2 * Math.PI * 7 * t);
+            d[i] = (float) Math.tanh(last * 2.2f) * trem * Math.min(1, (len - t) / 0.05f) * 0.5f;
+        }
+        return d;
+    }
+
+    private float[] mkChip(int midi) {
+        float f = hz(midi), len = 0.3f;
+        float[] d = new float[n(len)];
+        double ph = 0;
+        for (int i = 0; i < d.length; i++) {
+            float t = i / (float) SR;
+            float vib = t > 0.08f ? 1 + 0.012f * (float) Math.sin(2 * Math.PI * 6 * t) : 1;
+            ph += f * vib / SR;
+            float duty = t < 0.05f ? 0.125f : 0.25f;
+            float sq = (ph - Math.floor(ph)) < duty ? 1f : -0.35f;
+            d[i] = sq * Math.min(1, (len - t) / 0.06f) * (0.8f + 0.2f * (float) Math.exp(-t * 20)) * 0.22f;
         }
         return d;
     }

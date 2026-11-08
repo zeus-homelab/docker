@@ -64,6 +64,9 @@ public class Shots {
             shot(v, "01_title");
             set(v, "state", 1);
             shot(v, "02_select");
+            set(v, "page", 1);
+            shot(v, "03_select_p2");
+            set(v, "page", 0);
         }
         call(v, "startLevel", lvl);
         Sim sim = (Sim) get(v, "sim");

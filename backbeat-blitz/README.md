@@ -45,23 +45,34 @@ Chain them for a **beat combo** score multiplier.
 **Practice mode** (toggle it on the song list) respawns you at the last instrument change.
 
 ### Songs
-| | Song | BPM | Style |
-|---|---|---|---|
-| ★ | Garage Groove | 110 | backyard rock |
-| ★ | Reggaeton Rumble | 96 | laid-back dembow |
-| ★★ | Marching Mayhem | 128 | drumline funk with cowbell |
-| ★★ | Disco Inferno | 120 | four-on-the-floor disco |
-| ★★★ | Breakbeat Blitz | 150 | breakbeat chaos |
-| ★★★★ | Jungle Overdrive | 174 | drum & bass |
+Listen to a 15-second clip of every song in **[`mixtape.mp3`](mixtape.mp3)**.
+
+| | Song | BPM | Style | Band |
+|---|---|---|---|---|
+| ★ | Reggaeton Rumble | 96 | dembow | electric piano, synth pluck |
+| ★ | Carnival Samba | 104 | samba parade | surdo, shakers, agogo bells, congas, whistles |
+| ★ | Garage Groove | 110 | garage rock | crunchy guitar chords and riff |
+| ★★ | Steel Pan Splash | 118 | soca / calypso | steel pans |
+| ★★ | Disco Inferno | 120 | disco | offbeat keys, octave bass, horns |
+| ★★ | Marching Mayhem | 128 | drumline funk | organ clav, cowbell, horns |
+| ★★ | 8-Bit Hero | 136 | chiptune | 16th-note arpeggios, square-wave lead |
+| ★★★ | Surf's Up | 144 | surf rock | tremolo-picked twangy guitar |
+| ★★★ | Breakbeat Blitz | 150 | breakbeat | electric piano, pluck |
+| ★★★ | Ska-Doosh! | 152 | ska | organ skank, walking bass, horns |
+| ★★★★ | Jungle Overdrive | 174 | drum & bass | stabs, pluck |
+
+Most songs are in a major key. Each has a catchy two-bar hook written relative to the chords, so it always fits.
+**The band follows your instrument.** As the drum, the hook trades bars with the band. As the trumpet, the horn section takes the melody. As the tambourine, jingles and claps join in.
 
 ![songs](screenshots/select.png)
+![more songs](screenshots/select2.png)
 ![drum](screenshots/drum.png)
 ![trumpet](screenshots/trumpet.png)
 ![tambourine](screenshots/tambourine.png)
 
 ## Under the hood
 - Pure Java and Android Canvas, no engine and no libraries. The APK is about 100 KB.
-- **No audio files.** Every drum, cymbal, bass note and trumpet note is synthesized when the app starts. A step sequencer sends them to `AudioTrack` with sample-accurate timing.
+- **No audio files.** Every drum, percussion hit and instrument is synthesized by the app: brass, organ, steel pan, electric piano, chiptune square waves, and a Karplus-Strong plucked guitar. A step sequencer sends them to `AudioTrack` with sample-accurate timing.
 - The game clock comes from the audio hardware's playback position, so the visuals stay in sync with what you hear.
 - The physics constants come from each song's tempo (`Sim.java`), so every song feels the same at its own speed.
 - `tools/Solver.java` is a brute-force bot. It proves every level, from every practice checkpoint, can be beaten even when inputs can only change every 1/12 s, whatever the input phase. It runs on every build.

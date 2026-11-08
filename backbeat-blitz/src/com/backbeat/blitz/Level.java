@@ -368,6 +368,37 @@ public final class Level {
                 + "|T:wave,tunnel,narrow,sour"
                 + "|B:zag,midbar,sourT,zag"
                 + "|D:triple,goon3,orbpit,blockspike,double,triple"),
+            new Level("Surf's Up", "twangy guitars and big waves", 144f, 52, 6, 3,
+                "D:rest,double,goon2,triple,orbpit,sawpair,blockspike"
+                + "|T:wave,narrow,zig,saws,spikefield"
+                + "|D:goon3,padpit,triple,ledges,orbpit"
+                + "|B:zag,midbar,sourT,upblock"
+                + "|D:sawduck,goon3,triple,double,mixed"),
+            new Level("Ska-Doosh!", "skank on the offbeat, horns up", 152f, 58, 7, 3,
+                "D:rest,triple,goon3,orbpit,ledges,sawpair"
+                + "|B:midbar,zag,up,sourT"
+                + "|T:zig,sour,narrow,tunnel,saws"
+                + "|D:padpit,goon2,blockspike,triple,orbpit"
+                + "|T:wave,spikefield,zig"
+                + "|D:goon3,double,triple,mixed"),
+            new Level("Carnival Samba", "whistles, bells and a street parade", 104f, 55, 8, 1,
+                "D:rest,spike1,spike2,rest,goon,spike2"
+                + "|T:fly,pillars,fly,wave"
+                + "|D:double,rest,padpit,goon"
+                + "|B:roll,up,roll,zag"
+                + "|D:spike2,blockspike,goon,spike1,rest"),
+            new Level("8-Bit Hero", "a chiptune quest for high scores", 136f, 60, 9, 2,
+                "D:rest,double,spike2,stairs,rest,goon2,orbpit"
+                + "|T:pillars,zig,wave,saws,sour"
+                + "|D:blockspike,triple,sawduck,goon"
+                + "|B:up,midbar,zag,upblock"
+                + "|D:orbpit,ledges,goon2,double"),
+            new Level("Steel Pan Splash", "sunshine soca on the beach", 118f, 53, 10, 2,
+                "D:rest,spike2,double,goon,blockspike,orbpit,rest"
+                + "|B:up,zag,roll,midbar"
+                + "|D:padpit,goon2,double,sawduck"
+                + "|T:fly,wave,pillars,saws"
+                + "|D:triple,goon,ledges,double"),
         };
     }
 }
