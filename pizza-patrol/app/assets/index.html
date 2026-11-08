@@ -53,7 +53,8 @@
   .pips{display:flex;gap:3px}
   .pip{flex:1;height:9px;border-radius:3px;background:#3a2b4a}
   .pip.on{background:linear-gradient(#7bed9f,#2ed573)}
-  .chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:4px 0}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:2px 0}
+  .chips .btn{font-size:11px;padding:5px 7px;border-width:2px;box-shadow:0 3px 0 #2a1505}
   @media (max-height:370px){.pname small{display:none}.pname{min-height:0;padding:7px 4px}}
   .brow{display:flex;gap:8px;justify-content:center;margin-top:6px}
 
@@ -82,6 +83,11 @@
   #resTitle{font-size:30px;color:#ffe066}
   #resText{margin:10px 0;font-size:16px;line-height:1.5}
   #resStars{font-size:34px;letter-spacing:6px;color:#ffd54f;min-height:40px}
+  #btnPower{right:calc(max(18px,env(safe-area-inset-right)) + 11px);bottom:122px;width:70px;height:70px;font-size:11px;line-height:1.1;
+    background:conic-gradient(#ffb300 calc(var(--cd,1)*360deg),#5a4310 0)}
+  .ncard .th{font-size:11px;color:#fff;font-weight:900;min-height:28px;margin-top:2px}
+  #pn-acc{cursor:pointer}
+  @media (max-height:420px){#botKind{display:none}.pname small{display:none}.pname{min-height:0;padding:6px 4px}}
 </style>
 </head>
 <body>
@@ -110,6 +116,14 @@
       <li><b>Catch</b> a naughty kid by touching them. They get sent to the Time-Out corner.</li>
       <li>Catch enough naughty kids before <b>6 AM</b>, and don't let the <b>MESS</b> meter fill up!</li>
     </ul>
+    <p><b>Special tricks:</b></p>
+    <ul>
+      <li><b>POWER:</b> every head has a special move: Gator <b>CHOMP DASH</b>, Penguin <b>ICE SLIDE</b>, Raccoon <b>PIZZA BAIT</b>, Moose <b>STAMPEDE</b>, Owl <b>NIGHT SIGHT</b>.</li>
+      <li><b>Vents:</b> step on a metal vent to pop out somewhere else. Sneaky kids use them too!</li>
+      <li><b>Pizza delivery:</b> naughty kids rush to free pizza (easy catches!). Grab it yourself to recharge everything.</li>
+      <li><b>The Night Guard</b> (night 3+): when his flashlight is on you, <b>FREEZE</b>. He thinks you're just a costume... unless you move!</li>
+      <li><b>Tickets:</b> earn them every night and spend them on hats and shades in the builder.</li>
+    </ul>
     <p><b>Mix &amp; match parts:</b> <b>Legs</b> set speed, <b>Arms</b> set grab reach, the <b>Head</b> sets how far you see and how big your roar is, and the <b>Body</b> sets your battery.</p>
     <div class="brow"><button class="btn" id="bHowBack">Got it!</button></div>
   </div>
@@ -123,14 +137,11 @@
     <div class="prow"><span class="lab">BODY</span><button class="arr" data-part="body" data-d="-1">&#9664;</button><div class="pname" id="pn-body"></div><button class="arr" data-part="body" data-d="1">&#9654;</button></div>
     <div class="prow"><span class="lab">ARMS</span><button class="arr" data-part="arms" data-d="-1">&#9664;</button><div class="pname" id="pn-arms"></div><button class="arr" data-part="arms" data-d="1">&#9654;</button></div>
     <div class="prow"><span class="lab">LEGS</span><button class="arr" data-part="legs" data-d="-1">&#9664;</button><div class="pname" id="pn-legs"></div><button class="arr" data-part="legs" data-d="1">&#9654;</button></div>
+    <div class="prow"><span class="lab">STYLE</span><button class="arr" id="accPrev">&#9664;</button><div class="pname" id="pn-acc"></div><button class="arr" id="accNext">&#9654;</button></div>
     <div class="stats" id="statBox"></div>
-    <div class="chips" id="chips"></div>
-    <div class="brow">
-      <button class="btn alt small" id="bBack">&#9664; Menu</button>
-      <button class="btn alt small" id="bRandom">&#127922; Random</button>
-      <button class="btn green" id="bToNights">Go! &#9654;</button>
-    </div>
+    <div class="brow" style="align-items:center"><div class="chips" id="chips"></div><button class="btn green" id="bToNights">Go!&nbsp;&#9654;</button></div>
   </div>
+  <button class="btn alt small" id="bBack" style="position:absolute;top:10px;left:10px">&#9664; Menu</button>
 </div>
 
 <div id="nights" class="screen">
@@ -143,6 +154,7 @@
   <button id="btnPause">II</button>
   <button id="btnSprint" class="big">SPRINT</button>
   <button id="btnRoar" class="big">ROAR!</button>
+  <button id="btnPower" class="big">POWER</button>
 </div>
 
 <div id="pause" class="screen center">
@@ -191,6 +203,27 @@ const PART = {
   legs: { gator: { speed: 2, d: 'Stompy stumps' }, penguin: { speed: 5, d: 'Belly-slide feet: zoom!' }, raccoon: { speed: 4, d: 'Sneaky paws' }, moose: { speed: 4, d: 'Long strides' }, owl: { speed: 3, d: 'Hoppy talons' } },
 };
 const PART_NOUN = { head: 'Head', body: 'Body', arms: 'Arms', legs: 'Legs' };
+const POWERS = {
+  gator: { name: 'CHOMP DASH', d: 'lunge forward and snap up kids', cd: 7 },
+  penguin: { name: 'ICE SLIDE', d: 'zoom on an icy trail kids slip on', cd: 9 },
+  raccoon: { name: 'PIZZA BAIT', d: 'drop a slice; naughty kids stop to munch', cd: 12 },
+  moose: { name: 'STAMPEDE', d: 'charge at double speed with a huge grab', cd: 10 },
+  owl: { name: 'NIGHT SIGHT', d: 'see far and spot sneaky kids', cd: 14 },
+};
+const ACCS = [
+  { id: 'none', name: 'No accessory', cost: 0 }, { id: 'party', name: 'Party Hat', cost: 0 },
+  { id: 'shades', name: 'Cool Shades', cost: 40 }, { id: 'chef', name: 'Chef Hat', cost: 80 },
+  { id: 'phones', name: 'Headphones', cost: 120 }, { id: 'prop', name: 'Propeller Cap', cost: 160 },
+  { id: 'crown', name: 'Golden Crown', cost: 250 }];
+const NIGHT_INFO = [null,
+  { title: 'Opening Night', tip: 'Catch the naughty kids!' },
+  { title: 'Lights Out', tip: 'The power keeps cutting out. Watch for glowing red eyes!' },
+  { title: 'The Night Guard', tip: 'A guard patrols with a flashlight. FREEZE when it hits you!' },
+  { title: 'Sugar Rush', tip: 'The kids ate WAY too much cake. Everyone is fast!' },
+  { title: 'The Prankster King', tip: 'Catch the Prankster King 3 times. He loves the vents!' }];
+const CATCH_LINES = ['Time-out time!', 'No running in the pizzeria!', 'Gotcha!', 'Party foul!', 'Back to your table!', 'Not on my shift!'];
+const KIND_SPEED = { brat: 1, skater: 1.3, sneak: 1, boss: 1.2 };
+const KIND_NAME = { brat: '', skater: 'SKATER ', sneak: 'SNEAKY ', boss: '' };
 function stats(b) {
   const v = PART.head[b.head].vision, r = PART.head[b.head].roar, s = PART.body[b.body].stamina, re = PART.arms[b.arms].reach, sp = PART.legs[b.legs].speed;
   return { raw: { speed: sp, reach: re, vision: v, roar: r, stamina: s },
@@ -251,6 +284,60 @@ function drawBot(c, b, o) {
   polyP(c, [0, top + 3, -8, top - 1, -8, top + 8]); fill(c, T);
   polyP(c, [0, top + 3, 8, top - 1, 8, top + 8]); fill(c, T);
   circS(c, 0, top + 3.5, 2.6, T);
+  if (o.acc && o.acc !== 'none') drawAcc(c, o.acc, b.head, top - 12, t);
+  c.restore();
+}
+const HEAD_TOP = { gator: -18, penguin: -15, raccoon: -14, moose: -14, owl: -16 };
+const EYE_POS = { gator: [8, -12], penguin: [6, -1], raccoon: [6, -1], moose: [6, -5], owl: [7, -1] };
+function drawAcc(c, a, h, cy, t) {
+  c.save(); c.lineWidth = 1.8; c.strokeStyle = OUT;
+  const ht = cy + HEAD_TOP[h];
+  if (a === 'shades') {
+    const [ex, ey] = EYE_POS[h], r = h === 'owl' ? 6.5 : h === 'gator' ? 5.5 : 4.8;
+    for (const sd of [-1, 1]) { rrp(c, sd * ex - r - 1, cy + ey - r * 0.8, 2 * r + 2, r * 1.6, 3); fill(c, '#111'); c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(sd * ex - r + 1, cy + ey - r * 0.5, 3, 1.6); }
+    c.beginPath(); c.moveTo(-ex + r, cy + ey - 2); c.lineTo(ex - r, cy + ey - 2); c.stroke();
+  } else if (a === 'party') {
+    polyP(c, [-7, ht + 3, 7, ht + 3, 0, ht - 17]); fill(c, '#ff4081'); c.fillStyle = '#fff59d'; c.fillRect(-4, ht - 6, 8, 2); circ(c, 0, ht - 17, 2.6, '#fff59d');
+  } else if (a === 'chef') {
+    c.beginPath(); c.arc(-6, ht - 8, 6, 0, TAU); c.moveTo(7, ht - 12); c.arc(0, ht - 12, 7, 0, TAU); c.moveTo(12, ht - 8); c.arc(6, ht - 8, 6, 0, TAU); fill(c, '#fff');
+    rrp(c, -9, ht - 5, 18, 8, 2); fill(c, '#fff');
+  } else if (a === 'phones') {
+    c.lineWidth = 3.5; c.strokeStyle = '#263238'; c.beginPath(); c.arc(0, cy - 2, 17, Math.PI * 1.08, Math.PI * 1.92); c.stroke();
+    c.lineWidth = 1.8; c.strokeStyle = OUT; for (const sd of [-1, 1]) { rrp(c, sd * 16 - 4, cy - 7, 8, 13, 3); fill(c, '#e53935'); }
+  } else if (a === 'prop') {
+    c.beginPath(); c.ellipse(0, ht + 3, 11, 7, 0, Math.PI, TAU); c.closePath(); fill(c, '#1e88e5');
+    c.fillStyle = '#fdd835'; c.fillRect(-1, ht - 8, 2, 5); ell(c, 0, ht - 8, Math.abs(Math.cos(t * 25)) * 12 + 1, 2, '#e53935');
+  } else if (a === 'crown') {
+    polyP(c, [-10, ht + 2, -10, ht - 8, -5, ht - 3, 0, ht - 11, 5, ht - 3, 10, ht - 8, 10, ht + 2]); fill(c, '#ffd600');
+    circ(c, 0, ht - 2, 1.8, '#e53935'); circ(c, -6, ht - 1, 1.4, '#29b6f6'); circ(c, 6, ht - 1, 1.4, '#29b6f6');
+  }
+  c.restore();
+}
+function drawGuard(c, g) {
+  const walk = g.moving ? 1 : 0, ph = g.anim * 9, sw = Math.sin(ph) * walk, fx = Math.cos(g.ang), fy = Math.sin(g.ang);
+  c.save(); c.lineWidth = 2; c.strokeStyle = OUT; c.lineJoin = 'round';
+  ell(c, 0, 0, 15, 5, 'rgba(0,0,0,.35)');
+  for (const side of [-1, 1]) { const lift = Math.max(0, side * sw) * 4; rrp(c, side * 5 - 3.5, -24, 7, 23 - lift, 3); fill(c, '#1a237e'); ellS(c, side * 5.5, -2 - lift, 5, 3, '#111'); }
+  rrp(c, -12, -48, 24, 26, 7); fill(c, '#3949ab');
+  star(c, -5, -40, 3.5, '#ffd600'); c.fillStyle = '#111'; c.fillRect(-12, -27, 24, 3);
+  for (const side of [-1, 1]) { c.save(); c.translate(side * 11, -45); c.rotate(-side * 0.15 + sw * 0.4 * side); rrp(c, -3, 0, 6, 17, 3); fill(c, '#3949ab'); circS(c, 0, 18, 3.2, '#e0ac69'); c.restore(); }
+  c.save(); c.translate(12, -27); c.rotate(g.ang); rrp(c, -2, -3, 13, 6, 2); fill(c, '#424242'); circ(c, 11, 0, 3, '#fff59d'); c.restore();
+  circS(c, 0, -58, 10, '#e0ac69');
+  circ(c, -3.5 + fx * 1.5, -58 + fy, 1.4, '#111'); circ(c, 3.5 + fx * 1.5, -58 + fy, 1.4, '#111');
+  c.fillStyle = '#5d4037'; c.fillRect(-4.5, -54.5, 9, 2.5);
+  c.beginPath(); c.ellipse(0, -63, 11, 6, 0, Math.PI, TAU); c.closePath(); fill(c, '#1a237e'); rrp(c, -12, -64, 24, 3.5, 1.5); fill(c, '#111');
+  c.restore();
+}
+function drawBait(c, b, t) {
+  c.save(); c.translate(b.x, b.y); c.lineWidth = 1.8; c.strokeStyle = OUT;
+  if (b.type === 'box') {
+    rrp(c, -18, -12, 36, 26, 3); fill(c, '#a1887f'); rrp(c, -18, -26, 36, 14, 3); fill(c, '#bcaaa4');
+    circS(c, 0, 1, 12, '#ffb74d'); circ(c, 0, 1, 9.5, '#e57373'); for (let i = 0; i < 5; i++) circ(c, Math.cos(i * 1.3) * 5.5, 1 + Math.sin(i * 1.3) * 5.5, 2, '#b71c1c');
+    c.strokeStyle = 'rgba(255,255,255,.5)'; c.lineWidth = 2; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(i * 6, -14); c.quadraticCurveTo(i * 6 + Math.sin(t * 4 + i) * 4, -22, i * 6, -30); c.stroke(); }
+  } else {
+    polyP(c, [-9, -6, 9, -6, 0, 10]); fill(c, '#ffb74d'); rrp(c, -10, -9, 20, 4, 2); fill(c, '#d7a35f');
+    circ(c, -3, -2, 2, '#c62828'); circ(c, 3, -1, 2, '#c62828'); circ(c, 0, 4, 1.8, '#c62828');
+  }
   c.restore();
 }
 function drawLegs(c, s, C, ll, sw) {
@@ -382,6 +469,8 @@ function drawKid(c, k) {
   const walk = k.moving ? 1 : 0, ph = k.anim * 15, sw = Math.sin(ph) * walk;
   const bob = Math.abs(Math.cos(ph)) * 1.6 * walk;
   c.save(); c.lineWidth = 1.5; c.strokeStyle = OUT; c.lineJoin = 'round'; c.lineCap = 'round';
+  if (k.hidden) { for (let i = 0; i < 5; i++) circ(c, Math.cos(i * 1.3 + k.anim) * 9, -3 + Math.sin(i * 2.1) * 3, 4, ['#e53935', '#fdd835', '#43a047', '#1e88e5', '#fb8c00'][i]); for (const sx of [-3, 3]) { circ(c, sx, -8, 2.3, '#fff'); circ(c, sx + Math.sin(k.anim * 2), -8, 1.1, '#111'); } c.restore(); return; }
+  if (k.kind === 'boss') c.scale(1.2, 1.2);
   ell(c, 0, 0, 11, 3.5, 'rgba(0,0,0,.35)');
   if (k.sitting) c.translate(0, 6);
   c.translate(0, -bob);
@@ -389,20 +478,24 @@ function drawKid(c, k) {
     const lift = Math.max(0, side * sw) * 3.5;
     rrp(c, side * 3.5 - 2.5, -13, 5, 12 - lift, 2); fill(c, k.pants);
     ellS(c, side * 4.2, -1.5 - lift, 3.6, 2.2, '#222');
+    if (k.kind === 'skater' && k.bad) { c.fillStyle = '#e91e63'; c.fillRect(side * 4.2 - 4.5, -1 - lift, 9, 2.5); circ(c, side * 4.2 - 3, 2 - lift, 1.9, '#ffeb3b'); circ(c, side * 4.2 + 3, 2 - lift, 1.9, '#ffeb3b'); }
   }
+  if (k.kind === 'boss' && k.bad) { polyP(c, [-8, -25, 8, -25, 14, -2, -14, -2]); fill(c, '#c62828'); }
   rrp(c, -8, -26, 16, 15, 5); fill(c, k.shirt);
   if (k.bad) { c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(-7, -21, 14, 2.5); c.fillRect(-7, -16.5, 14, 2.5); }
-  const mis = k.state === 'mischief' && !k.stunT;
+  const mis = k.state === 'mischief' && !k.stunT, eat = k.state === 'bait';
   for (const side of [-1, 1]) {
     c.save(); c.translate(side * 7.5, -24);
     let a = -side * 0.25 + sw * 0.6;
     if (mis && side === 1) a = -2.5 + Math.sin(k.anim * 22) * 0.35;
+    if (eat && side === 1) a = -2.85 + Math.sin(k.anim * 12) * 0.2;
     if (k.state === 'flee' && !k.stunT) a = -side * 0.9 + sw * 0.4;
     if (k.cryT > 0) a = -side * 2.6;
     c.rotate(a);
     rrp(c, -2, 0, 4, 10, 2); fill(c, k.shirt);
     circS(c, 0, 11, 2.5, k.skin);
-    if (k.bad && side === 1 && !k.sitting) { rrp(c, -2.3, 11, 4.6, 7, 1); fill(c, k.item); }
+    if (eat && side === 1) { polyP(c, [-4, 11, 4, 11, 0, 19]); fill(c, '#ffb74d'); }
+    else if (k.bad && side === 1 && !k.sitting) { rrp(c, -2.3, 11, 4.6, 7, 1); fill(c, k.item); }
     c.restore();
   }
   const hy = -34;
@@ -428,7 +521,9 @@ function drawKid(c, k) {
     } else { c.beginPath(); c.arc(0, hy + 2.2, 2.6, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke(); }
   }
   c.strokeStyle = OUT; c.lineWidth = 1.5;
-  if (k.bad) {
+  if (k.bad && k.kind === 'boss') { polyP(c, [-8, hy - 6, -8, hy - 16, -4, hy - 10, 0, hy - 18, 4, hy - 10, 8, hy - 16, 8, hy - 6]); fill(c, '#ffd600'); circ(c, 0, hy - 9, 1.7, '#e53935'); }
+  else if (k.bad && k.kind === 'sneak') { c.lineWidth = 3.5; c.strokeStyle = '#263238'; c.beginPath(); c.arc(0, hy, 9.6, Math.PI * 0.8, Math.PI * 2.2); c.stroke(); c.strokeStyle = '#e53935'; c.lineWidth = 1.6; c.beginPath(); c.arc(0, hy, 11.4, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); c.strokeStyle = OUT; c.lineWidth = 1.5; }
+  else if (k.bad) {
     c.beginPath(); c.ellipse(0, hy - 4, 8.8, 6, 0, Math.PI, TAU); c.closePath(); fill(c, '#e53935');
     ellS(c, 8, hy - 4.5, 5, 1.8, '#c62828', 0.2);
   } else if (k.hat) {
@@ -471,6 +566,9 @@ carve(32, 23, 32, 23, 'r'); carve(39, 23, 39, 23, 'o');
 put([[38, 27], [39, 27], [40, 27]], 'M');
 put([[35, 19], [36, 19], [37, 19]], 'P');
 carve(40, 18, 42, 19, 'c');
+const VENT_PAIRS = [[1, 12, 27, 28], [42, 12, 29, 28], [1, 28, 42, 28]];
+const VENT_TO = {};
+for (const [a, b, c2, d] of VENT_PAIRS) { MAP[b][a] = 'v'; MAP[d][c2] = 'v'; VENT_TO[a + ',' + b] = [c2, d]; VENT_TO[c2 + ',' + d] = [a, b]; }
 const SOLID = { '#': 1, 'T': 1, 'A': 1, 'K': 1, 'M': 1, 'P': 1 };
 const isSolidT = (tx, ty) => tx < 0 || ty < 0 || tx >= MW || ty >= MH || !!SOLID[MAP[ty][tx]];
 const WALKABLE = []; for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (!isSolidT(x, y) && MAP[y][x] !== 'c') WALKABLE.push([x, y]);
@@ -503,6 +601,7 @@ function buildMapCanvas() {
     else if (f === 'r') { c.fillStyle = '#8fb8d6'; c.fillRect(px, py, TILE, TILE); c.strokeStyle = '#7aa3c1'; c.lineWidth = 1; for (let i = 0; i <= 48; i += 16) { c.beginPath(); c.moveTo(px + i, py); c.lineTo(px + i, py + 48); c.moveTo(px, py + i); c.lineTo(px + 48, py + i); c.stroke(); } }
     else if (f === 'o') { c.fillStyle = '#3b3f44'; c.fillRect(px, py, TILE, TILE); c.fillStyle = '#34383d'; c.fillRect(px, py + 23, TILE, 2); }
     else if (f === 'c') { c.fillStyle = '#7a1f2b'; c.fillRect(px, py, TILE, TILE); }
+    else if (f === 'v') { c.fillStyle = '#1e1e24'; c.fillRect(px, py, TILE, TILE); rrp(c, px + 5, py + 5, 38, 38, 5); c.fillStyle = '#78909c'; c.fill(); c.fillStyle = '#263238'; for (let i = 0; i < 5; i++) c.fillRect(px + 10, py + 10 + i * 6.5, 28, 3.5); c.fillStyle = '#b0bec5'; for (const [bx, by] of [[9, 9], [39, 9], [9, 39], [39, 39]]) c.fillRect(px + bx - 1.5, py + by - 1.5, 3, 3); }
   }
   // ball pit rim
   c.strokeStyle = '#ffd54f'; c.lineWidth = 5; c.strokeRect(20 * TILE, 21 * TILE, 7 * TILE, 7 * TILE);
@@ -604,6 +703,14 @@ const Snd = {
   chime() { [0, 4, 7, 12].forEach((s, i) => this.tone(440 * Math.pow(2, s / 12), 0.6, 'sine', 0.1, null, i * 0.12)); },
   win() { [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => this.tone(523 * Math.pow(2, s / 12), 0.25, 'square', 0.07, null, i * 0.09)); },
   lose() { [0, -3, -6, -10].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.35, 'sawtooth', 0.07, null, i * 0.2)); },
+  vent() { this.tone(200, 0.12, 'square', 0.06, 90); this.noise(0.4, 0.18, 900, 0.05, 'bandpass'); },
+  chomp() { this.tone(320, 0.08, 'square', 0.12, 120); this.tone(260, 0.08, 'square', 0.12, 100, 0.13); },
+  slide() { this.noise(1.4, 0.08, 2500, 0, 'highpass'); this.tone(900, 0.5, 'sine', 0.06, 1500); },
+  stomp() { for (let i = 0; i < 6; i++) this.tone(70, 0.12, 'square', 0.09, 40, i * 0.2); },
+  drop() { this.tone(500, 0.1, 'triangle', 0.08, 300); this.tone(700, 0.1, 'triangle', 0.06, 500, 0.1); },
+  sight() { [0, 7, 12, 19].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.4, 'sine', 0.07, null, i * 0.07)); },
+  powerDown() { this.tone(400, 1.2, 'sawtooth', 0.08, 30); },
+  spotted() { this.tone(1200, 0.15, 'square', 0.09); this.tone(1200, 0.15, 'square', 0.09, null, 0.22); },
   humStart() {
     if (!this.ok() || this.hum) return; const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
     o.frequency.value = 58; o2.frequency.value = 117; o2.type = 'triangle'; g.gain.value = 0.035;
@@ -628,7 +735,7 @@ setInterval(() => {
 
 /* ================= save data ================= */
 const SAVE_KEY = 'mpp_save_v1';
-const save = { unlocked: 1, best: {}, build: { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, sound: true };
+const save = { unlocked: 1, best: {}, build: { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, sound: true, tickets: 0, owned: ['none', 'party'], acc: 'party' };
 try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { }
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { } }
 const build = save.build;
@@ -655,11 +762,22 @@ function refreshBuilder() {
   for (const p of ['head', 'body', 'arms', 'legs']) $('pn-' + p).innerHTML = '<b>' + SPECIES[build[p]].pre + "'s " + PART_NOUN[p] + '</b><small>' + PART[p][build[p]].d + '</small>';
   const r = stats(build).raw;
   const rows = [['SPEED', r.speed], ['REACH', r.reach], ['EYES', r.vision], ['ROAR', r.roar], ['BATTERY', r.stamina]];
-  $('statBox').innerHTML = rows.map(([n, v]) => '<span>' + n + '</span><div class="pips">' + [1, 2, 3, 4, 5].map(i => '<div class="pip' + (i <= v ? ' on' : '') + '"></div>').join('') + '</div>').join('');
+  $('statBox').innerHTML = rows.map(([n, v]) => '<span>' + n + '</span><div class="pips">' + [1, 2, 3, 4, 5].map(i => '<div class="pip' + (i <= v ? ' on' : '') + '"></div>').join('') + '</div>').join('')
+    + '<span style="grid-column:1/-1;color:#ffb300">POWER: ' + POWERS[build.head].name + ' <span style="color:#e6d6ff;font-weight:400">(' + POWERS[build.head].d + ')</span></span>';
+  refreshAcc();
 }
-$('chips').innerHTML = ORDER.map(s => '<button class="btn small alt" data-preset="' + s + '" style="background:' + SPECIES[s].main + ';color:#fff">' + SPECIES[s].pre + (s === 'penguin' ? 'ny' : s === 'raccoon' ? 'co' : s === 'moose' ? 'el' : s === 'owl' ? 'lie' : '') + '</button>').join('');
+$('chips').innerHTML = ORDER.map(s => '<button class="btn small alt" data-preset="' + s + '" style="background:' + SPECIES[s].main + ';color:#fff">' + SPECIES[s].pre + (s === 'penguin' ? 'ny' : s === 'raccoon' ? 'co' : s === 'moose' ? 'el' : s === 'owl' ? 'lie' : '') + '</button>').join('') + '<button class="btn small alt" id="bRandom" title="Random">&#127922;</button>';
 document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { const s = b.dataset.preset; build.head = build.body = build.arms = build.legs = s; Snd.chime(); refreshBuilder(); persist(); }));
 document.querySelectorAll('.arr').forEach(b => b.addEventListener('click', () => cyclePart(b.dataset.part, +b.dataset.d)));
+let accView = Math.max(0, ACCS.findIndex(a => a.id === save.acc));
+function refreshAcc() {
+  const a = ACCS[accView], owned = save.owned.includes(a.id);
+  $('pn-acc').innerHTML = '<b>' + a.name + (owned ? (save.acc === a.id ? ' &#10004;' : '') : ' &middot; ' + a.cost + ' &#127903;') + '</b><small>'
+    + (owned ? 'You have ' + save.tickets + ' tickets' : save.tickets >= a.cost ? 'Tap here to buy! (you have ' + save.tickets + ')' : 'Need ' + a.cost + ' tickets (you have ' + save.tickets + ')') + '</small>';
+}
+function cycleAcc(d) { accView = (accView + d + ACCS.length) % ACCS.length; const a = ACCS[accView]; if (save.owned.includes(a.id)) { save.acc = a.id; persist(); } Snd.click(); refreshAcc(); }
+$('accPrev').onclick = () => cycleAcc(-1); $('accNext').onclick = () => cycleAcc(1);
+$('pn-acc').onclick = () => { const a = ACCS[accView]; if (!save.owned.includes(a.id) && save.tickets >= a.cost) { save.tickets -= a.cost; save.owned.push(a.id); save.acc = a.id; persist(); Snd.win(); refreshAcc(); } else if (!save.owned.includes(a.id)) Snd.cry(); };
 $('bRandom').onclick = () => { for (const p of ['head', 'body', 'arms', 'legs']) build[p] = pick(ORDER); Snd.whir(); refreshBuilder(); persist(); };
 
 /* ================= nights ================= */
@@ -668,7 +786,7 @@ const quotaFor = n => 4 + n * 2;
 function refreshNights() {
   $('nightList').innerHTML = Array.from({ length: NIGHTS }, (_, i) => {
     const n = i + 1, locked = n > save.unlocked;
-    return '<button class="ncard' + (locked ? ' locked' : '') + '" data-night="' + n + '"><div class="q">NIGHT</div><div class="n">' + (locked ? '&#128274;' : n) + '</div><div class="q">Catch ' + quotaFor(n) + ' kids</div><div class="b">' + (save.best[n] ? 'Best: ' + save.best[n] : '&nbsp;') + '</div></button>';
+    return '<button class="ncard' + (locked ? ' locked' : '') + '" data-night="' + n + '"><div class="q">NIGHT</div><div class="n">' + (locked ? '&#128274;' : n) + '</div><div class="th">' + NIGHT_INFO[n].title + '</div><div class="q">Catch ' + quotaFor(n) + ' kids</div><div class="b">' + (save.best[n] ? 'Best: ' + save.best[n] : '&nbsp;') + '</div></button>';
   }).join('');
   document.querySelectorAll('[data-night]').forEach(b => b.addEventListener('click', () => { const n = +b.dataset.night; if (n <= save.unlocked) { Snd.click(); startNight(n); } }));
 }
@@ -696,8 +814,11 @@ function pathTo(sx, sy, gx, gy) {
 function makeKid(tx, ty, bad) {
   return { x: tx * TILE + 24, y: ty * TILE + 24, bad, state: 'wander', path: null, timer: rnd(0, 2), anim: rnd(0, 5), moving: 0, face: 1,
     shirt: pick(SHIRTS), pants: pick(PANTS), skin: pick(SKINS), hair: pick(HAIRS), hs: ri(0, 2), hat: pick(['#ab47bc', '#29b6f6', '#66bb6a', '#ff7043', '#ffca28']), item: pick(['#e53935', '#1e88e5', '#7cb342', '#8e24aa']),
-    fleeT: 0, tiredT: 0, stunT: 0, cryT: 0, calmT: 0, hiT: 0, say: null, decals: [], ft: null, prev: null, speedMul: rnd(0.92, 1.08) };
+    fleeT: 0, tiredT: 0, stunT: 0, cryT: 0, calmT: 0, hiT: 0, say: null, decals: [], ft: null, prev: null, speedMul: rnd(0.92, 1.08),
+    kind: 'brat', hidden: false, ventCd: 0, baitCd: 0, slipCd: 0, lives: 1, bait: null };
 }
+function kindFor(n) { return pick([null, ['brat'], ['brat', 'brat', 'skater'], ['brat', 'skater', 'sneak'], ['skater', 'skater', 'brat', 'sneak'], ['brat', 'skater', 'sneak', 'sneak']][n]); }
+function makeBad(k, kind) { k.bad = true; k.kind = kind; if (kind === 'sneak') k.shirt = '#37474f'; if (kind === 'boss') { k.shirt = '#6a1b9a'; k.lives = 3; k.speedMul = 1; } return k; }
 function farTile(minD) {
   for (let i = 0; i < 60; i++) { const [x, y] = pick(WALKABLE); if (!G || Math.hypot(x * TILE + 24 - G.p.x, y * TILE + 24 - G.p.y) > minD) return [x, y]; }
   return pick(WALKABLE);
@@ -705,15 +826,19 @@ function farTile(minD) {
 function startNight(n) {
   const st = stats(build);
   G = { night: n, t: 0, nightLen: 150, quota: quotaFor(n), caught: 0, mess: 0, score: 0, combo: 0, lastCatch: -99,
-    p: { x: 7.5 * TILE, y: 2.6 * TILE, vx: 0, vy: 0, stam: st.staminaMax, roarCd: 0, anim: 0, walk: 0, grab: 0, stepT: 0, look: 0, exhausted: false }, st,
+    p: { x: 7.5 * TILE, y: 2.6 * TILE, vx: 0, vy: 0, stam: st.staminaMax, roarCd: 0, anim: 0, walk: 0, grab: 0, stepT: 0, look: 0, exhausted: false,
+      powerCd: 0, pw: null, dir: [1, 0], frozenT: 0, spotCd: 0, ventLock: false, say: null }, st,
     kids: [], decals: [], fx: [], toasts: [], timeout: [], arrivals: [], flow: new Int16Array(MW * MH), flowT: 0,
-    turnT: 6, maxBad: 2 + n, fleeR: 150 + n * 10, kidSpeed: 118 + n * 9, messRate: 0.75 + n * 0.22,
-    over: false, endT: 0, paused: false, shake: 0, intro: 2.8, flick: 0, flickT: rnd(8, 14), alarmT: 0, result: null, cam: { x: 0, y: 0 } };
+    turnT: 6, maxBad: 2 + n, fleeR: 150 + n * 10, kidSpeed: (118 + n * 9) * (n === 4 ? 1.15 : 1), messRate: 0.75 + n * 0.22,
+    over: false, endT: 0, paused: false, shake: 0, intro: 2.8, flick: 0, flickT: rnd(8, 14), alarmT: 0, result: null, cam: { x: 0, y: 0 },
+    guard: null, baits: [], ice: [], outage: 0, outT: rnd(14, 22), deliveryT: rnd(22, 32), boss: n === 5, bossNag: false, inCone: false, earned: 0 };
   const total = 8 + n * 2, bad0 = Math.min(G.maxBad, 1 + Math.ceil(n / 2));
-  for (let i = 0; i < total; i++) { const [x, y] = farTile(380); G.kids.push(makeKid(x, y, i < bad0)); }
+  for (let i = 0; i < total; i++) { const [x, y] = farTile(380); const kd = makeKid(x, y, false); if (i < bad0) makeBad(kd, n === 5 && i === 0 ? 'boss' : kindFor(n)); G.kids.push(kd); }
+  if (n >= 3) G.guard = { x: 2.5 * TILE, y: 15.5 * TILE, path: null, ang: 0, base: 0, anim: 0, wait: 2, sayT: 0, say: null, moving: 0, face: 1 };
+  $('btnPower').innerHTML = POWERS[build.head].name.replace(' ', '<br>');
   G.cam.x = G.p.x; G.cam.y = G.p.y;
-  if (n === 1) { toast('Drag on the left side to move!', 4); toast('Touch NAUGHTY kids (red caps) to catch them!', 4.5); toast('ROAR freezes them, but don\'t scare good kids!', 4.5); }
-  else toast('Catch ' + G.quota + ' naughty kids before 6 AM!', 3.5);
+  if (n === 1) { toast('Drag on the left side to move!', 4); toast('Touch NAUGHTY kids (red caps) to catch them!', 4.5); toast('ROAR freezes them, but don\'t scare good kids!', 4.5); toast('POWER is your head\'s special move: try it!', 4); toast('Metal vents are shortcuts. Step on one!', 4); }
+  else { toast(NIGHT_INFO[n].tip, 4.5, '#ffe066'); toast('Catch ' + G.quota + ' naughty kids before 6 AM!', 3.5); }
   input.joy = null; input.sprintBtn = false;
   show('game'); Snd.init(); Snd.humStart(); Snd.chime();
 }
@@ -748,18 +873,31 @@ function updateKid(k, dt) {
   k.anim += dt;
   if (k.say) { k.say.t -= dt; if (k.say.t <= 0) k.say = null; }
   if (k.hiT > 0) k.hiT -= dt;
+  if (k.ventCd > 0) k.ventCd -= dt; if (k.baitCd > 0) k.baitCd -= dt; if (k.slipCd > 0) k.slipCd -= dt;
   if (k.state === 'caught') { k.caughtT -= dt; k.moving = 0; if (k.caughtT <= 0) { k.gone = true; G.timeout.push(k); k.sitting = true; poof(k.x, k.y); } return; }
   if (k.stunT > 0) { k.stunT -= dt; k.moving = 0; return; }
   if (k.cryT > 0) { k.cryT -= dt; k.moving = 0; return; }
   const p = G.p, d = dist(k, p);
   const [tx, ty] = tileOf(k);
+  if (k.state === 'hide') { k.moving = 0; k.timer -= dt; if (d < 80 || k.timer <= 0) { k.hidden = false; k.state = d < 80 ? 'flee' : 'wander'; k.path = null; k.ft = null; if (d < 80) say(k, 'AH! Found me!'); } return; }
+  if (k.state === 'bait' || k.state === 'toBait') {
+    const b = k.bait;
+    if (!b || b.life <= 0) { k.state = 'wander'; k.path = null; k.bait = null; }
+    else if (k.state === 'bait') { k.moving = 0; k.timer -= dt; if (Math.random() < dt * 0.7) say(k, pick(['nom nom', 'mmm pizza', 'NOM!'])); if (k.timer <= 0) { k.state = 'wander'; k.path = null; k.baitCd = 12; if (b.type === 'box') b.life -= 5; } return; }
+    else if (d >= G.fleeR) {
+      if (dist(k, b) < 24) { k.state = 'bait'; k.timer = b.type === 'box' ? 5 : 4.5; k.path = null; say(k, 'PIZZA!'); return; }
+      if (!k.path || !k.path.length) k.path = pathTo(tx, ty, Math.floor(b.x / TILE), Math.floor(b.y / TILE));
+      if (!k.path.length) { moveToward(k, b.x, b.y, 95 * k.speedMul, dt); return; }
+      const [nx, ny] = k.path[0]; if (moveToward(k, nx * TILE + 24, ny * TILE + 24, 95 * k.speedMul, dt)) k.path.shift(); return;
+    }
+  }
   if (k.bad) {
     if (k.state !== 'flee' && d < G.fleeR) { k.state = 'flee'; k.fleeT = 0; k.calmT = 0; k.ft = null; if (Math.random() < 0.6) say(k, pick(BAD_SAYS)); }
     if (k.state === 'flee') {
       k.fleeT += dt;
       if (k.tiredT > 0) k.tiredT -= dt; else if (k.fleeT > 3.4 - G.night * 0.12) { k.tiredT = 1.7; k.fleeT = 0; }
       if (d > G.fleeR * 1.9) { k.calmT += dt; if (k.calmT > 1.5) { k.state = 'wander'; k.path = null; } } else k.calmT = 0;
-      const sp = G.kidSpeed * k.speedMul * (k.tiredT > 0 ? 0.45 : 1);
+      const sp = G.kidSpeed * k.speedMul * KIND_SPEED[k.kind] * (k.tiredT > 0 ? 0.45 : 1);
       if (!k.ft) {
         let best = null, bv = -1, here = G.flow[ty * MW + tx];
         const opts = [];
@@ -770,18 +908,30 @@ function updateKid(k, dt) {
           if (k.prev && k.prev[0] === nx && k.prev[1] === ny) v -= 1.5;
           // steer away from the player directly
           const ax = (nx - tx) * (k.x - p.x) + (ny - ty) * (k.y - p.y); v += ax > 0 ? 0.6 : -0.6;
+          const tch = MAP[ny][nx];
+          if (tch === 'b' && k.kind === 'sneak') v += 1.5;
+          if (tch === 'v' && (k.kind === 'boss' || k.kind === 'sneak') && k.ventCd <= 0) v += 1.5;
           opts.push([v, nx, ny]);
         }
         for (const o of opts) if (o[0] > bv) { bv = o[0]; best = o; }
         if (best && bv > here - 0.5) { k.prev = [tx, ty]; k.ft = [best[1] * TILE + 24, best[2] * TILE + 24]; }
         else { k.moving = 0; k.ft = [tx * TILE + 24 + rnd(-8, 8), ty * TILE + 24 + rnd(-8, 8)]; }
       }
-      if (moveToward(k, k.ft[0], k.ft[1], sp, dt)) k.ft = null;
+      if (moveToward(k, k.ft[0], k.ft[1], sp, dt)) {
+        k.ft = null;
+        const [cx, cy] = tileOf(k), tc = MAP[cy][cx];
+        if (tc === 'v' && k.ventCd <= 0 && Math.random() < (k.kind === 'boss' || k.kind === 'sneak' ? 1 : 0.4)) {
+          const to = VENT_TO[cx + ',' + cy]; poof(k.x, k.y); k.x = to[0] * TILE + 24; k.y = to[1] * TILE + 24; k.ventCd = 4; k.prev = null; poof(k.x, k.y); say(k, 'wheee!'); Snd.vent();
+        } else if (tc === 'b' && k.kind === 'sneak' && d > 150) { k.state = 'hide'; k.hidden = true; k.timer = rnd(4, 7); k.say = null; }
+      }
       return;
+    }
+    if ((k.state === 'wander' || k.state === 'mischief') && k.baitCd <= 0 && k.kind !== 'boss' && G.baits.length) {
+      for (const b of G.baits) if (b.life > 0 && dist(k, b) < (b.type === 'box' ? 650 : 420)) { k.state = 'toBait'; k.bait = b; k.path = null; say(k, 'is that PIZZA?!'); return; }
     }
     if (k.state === 'mischief') {
       k.timer -= dt; k.moving = 0;
-      if (G.intro <= 0) G.mess += G.messRate * dt;
+      if (G.intro <= 0) G.mess += G.messRate * dt * (k.kind === 'boss' ? 1.8 : 1);
       k.decalT -= dt; if (k.decalT <= 0) { k.decalT = rnd(2.5, 4); decalFor(k); }
       if (Math.random() < dt * 0.25) say(k, pick(BAD_SAYS));
       if (k.timer <= 0) { k.state = 'wander'; k.path = null; }
@@ -799,10 +949,25 @@ function updateKid(k, dt) {
     return;
   }
   const [nx, ny] = k.path[0];
-  if (moveToward(k, nx * TILE + 24, ny * TILE + 24, (k.bad ? 70 : 55) * k.speedMul, dt)) k.path.shift();
+  if (moveToward(k, nx * TILE + 24, ny * TILE + 24, (k.bad ? 70 : 55) * k.speedMul * (G.night === 4 ? 1.3 : 1), dt)) k.path.shift();
 }
 function poof(x, y) { for (let i = 0; i < 12; i++) G.fx.push({ type: 'p', x, y: y - 15, vx: rnd(-80, 80), vy: rnd(-90, 30), t: 0, dur: rnd(0.4, 0.8), col: pick(['#fff', '#ffeb3b', '#ff80ab']) }); }
+function botSay() { G.p.say = { text: pick(CATCH_LINES), t: 1.4 }; }
+function checkWin() {
+  if (G.over || G.caught < G.quota) return;
+  if (G.boss && G.kids.some(k => k.kind === 'boss' && k.state !== 'caught')) { if (!G.bossNag) { G.bossNag = true; toast('Quota done! Now catch the PRANKSTER KING!', 3.5, '#ffd600'); } return; }
+  endNight(true);
+}
 function catchKid(k) {
+  k.hidden = false;
+  if (k.kind === 'boss' && k.lives > 1) {
+    k.lives--; G.caught++; G.score += 150; poof(k.x, k.y); floatText(k.x, k.y - 50, 'ALMOST! +150', '#ffd600', 20);
+    const [x, y] = farTile(550); k.x = x * TILE + 24; k.y = y * TILE + 24; k.state = 'wander'; k.path = null; k.ft = null; k.stunT = 0; poof(k.x, k.y);
+    toast('The Prankster King escaped in a puff of glitter! (' + k.lives + ' more)', 2.8, '#ffd600'); Snd.giggle(); G.p.grab = 0.35; G.p.say = { text: 'Come back here!', t: 1.4 };
+    checkWin(); return;
+  }
+  if (k.kind === 'boss') toast('THE PRANKSTER KING IS BUSTED!', 3, '#ffd600');
+  botSay();
   k.state = 'caught'; k.caughtT = 0.7; k.stunT = 0; G.caught++;
   const combo = G.t - G.lastCatch < 6 ? ++G.combo : (G.combo = 0); G.lastCatch = G.t;
   const pts = 100 + combo * 50; G.score += pts;
@@ -811,7 +976,7 @@ function catchKid(k) {
   floatText(k.x, k.y - 50, 'BUSTED! +' + pts, '#ffeb3b', 22); if (combo) floatText(k.x, k.y - 72, 'COMBO x' + (combo + 1), '#ff80ab', 16);
   G.p.grab = 0.35; G.shake = Math.max(G.shake, 0.18); Snd.grab();
   G.arrivals.push(rnd(4, 8));
-  if (G.caught >= G.quota) endNight(true);
+  checkWin();
 }
 function roar() {
   const p = G.p; if (!G || G.over || G.intro > 0 || p.roarCd > 0) return;
@@ -821,11 +986,47 @@ function roar() {
   for (const k of G.kids) {
     if (k.gone || k.state === 'caught') continue;
     if (dist(k, p) < G.st.roarR) {
-      if (k.bad) { k.stunT = G.st.stun; k.state = 'flee'; k.ft = null; }
+      if (k.bad) { k.stunT = G.st.stun; k.state = 'flee'; k.ft = null; k.hidden = false; k.bait = null; }
       else if (k.cryT <= 0) { k.cryT = 2.2; scared++; Snd.cry(); floatText(k.x, k.y - 50, '-25', '#ff5252'); }
     }
   }
   if (scared) { G.score = Math.max(0, G.score - 25 * scared); toast('Oops! You scared a good kid!', 2, '#ff8a80'); }
+}
+function usePower() {
+  const p = G && G.p; if (!p || mode !== 'game' || G.over || G.intro > 0 || p.powerCd > 0 || p.pw || p.frozenT > 0) return;
+  const h = build.head, P = POWERS[h]; p.powerCd = P.cd;
+  let dx = p.vx, dy = p.vy, l = Math.hypot(dx, dy); if (l < 10) { dx = p.look >= 0 ? 1 : -1; dy = 0; l = 1; } p.dir = [dx / l, dy / l];
+  if (h === 'gator') { p.pw = { type: 'dash', t: 0.28 }; Snd.chomp(); }
+  else if (h === 'penguin') { p.pw = { type: 'slide', t: 2.3, trail: 0 }; Snd.slide(); }
+  else if (h === 'raccoon') { G.baits.push({ x: p.x, y: p.y + 8, life: 10, type: 'slice' }); Snd.drop(); }
+  else if (h === 'moose') { p.pw = { type: 'charge', t: 1.6 }; Snd.stomp(); }
+  else { p.pw = { type: 'sight', t: 6 }; Snd.sight(); }
+  floatText(p.x, p.y - 100, P.name + '!', '#ffb300', 20);
+}
+const GUARD_RANGE = 250, GUARD_HALF = 0.42;
+function los(x0, y0, x1, y1) { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 12); for (let i = 1; i < n; i++) { const f = i / n; if (solidPx(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f)) return false; } return true; }
+function updateGuard(g, dt) {
+  const p = G.p; g.anim += dt; if (g.say) { g.say.t -= dt; if (g.say.t <= 0) g.say = null; } if (g.sayT > 0) g.sayT -= dt;
+  let mvx = 0, mvy = 0;
+  if (g.wait > 0) { g.wait -= dt; g.moving = 0; }
+  else {
+    if (!g.path) { const [gx, gy] = pick(WALKABLE); const [tx, ty] = tileOf(g); g.path = pathTo(tx, ty, gx, gy).slice(0, 25); }
+    if (g.path.length) { const [nx, ny] = g.path[0], ox = g.x, oy = g.y; if (moveToward(g, nx * TILE + 24, ny * TILE + 24, 62, dt)) g.path.shift(); mvx = g.x - ox; mvy = g.y - oy; }
+    if (!g.path.length) { g.wait = rnd(1.5, 3); g.path = null; }
+  }
+  if (mvx || mvy) g.base = Math.atan2(mvy, mvx);
+  const sweep = Math.sin(g.anim * (g.wait > 0 ? 1.2 : 1.8)) * (g.wait > 0 ? 0.9 : 0.4);
+  const target = g.base + sweep; g.ang += Math.atan2(Math.sin(target - g.ang), Math.cos(target - g.ang)) * Math.min(1, dt * 5);
+  const dx = p.x - g.x, dy = (p.y - 20) - (g.y - 25), a = Math.atan2(dy, dx);
+  const inCone = Math.hypot(dx, dy) < GUARD_RANGE && Math.abs(Math.atan2(Math.sin(a - g.ang), Math.cos(a - g.ang))) < GUARD_HALF && los(g.x, g.y - 25, p.x, p.y - 20);
+  G.inCone = inCone;
+  if (!inCone) return;
+  const moving = Math.hypot(p.vx, p.vy) > 35;
+  if (moving && p.spotCd <= 0) {
+    p.spotCd = 3; p.frozenT = 1.6; p.pw = null; G.score = Math.max(0, G.score - 50); G.mess = Math.min(100, G.mess + 5);
+    g.say = { text: pick(['HEY! Did that mascot MOVE?!', 'Back on the stage, you!', 'I SAW that!']), t: 2 }; g.wait = 1.5; G.shake = 0.3;
+    Snd.spotted(); floatText(p.x, p.y - 90, 'SPOTTED! -50', '#ff5252', 20);
+  } else if (!moving && g.sayT <= 0) { g.sayT = 6; g.say = { text: pick(['Huh... just a costume.', 'Creepy statue...', '*yawn*', 'Was it always standing there?']), t: 1.8 }; }
 }
 function endNight(win, why) {
   if (G.over) return; G.over = true; G.endT = 1.4; Snd.humStop();
@@ -837,6 +1038,7 @@ function endNight(win, why) {
     if (G.night >= save.unlocked && G.night < NIGHTS) save.unlocked = G.night + 1;
     save.best[G.night] = Math.max(save.best[G.night] || 0, G.score); persist(); Snd.win();
   } else { G.result = { win, why }; Snd.lose(); }
+  G.earned = win ? G.caught * 10 + G.result.stars * 15 + G.night * 10 : G.caught * 5; save.tickets += G.earned; persist();
 }
 function showResult() {
   const r = G.result;
@@ -845,6 +1047,7 @@ function showResult() {
   $('resText').innerHTML = r.win
     ? 'Naughty kids caught: <b>' + G.caught + '</b><br>Mess left: <b>' + Math.round(G.mess) + '%</b><br>Bonus: <b>+' + r.bonus + '</b><br>Score: <b style="color:#ffe066">' + G.score + '</b>' + (save.best[G.night] === G.score ? ' (new best!)' : '')
     : r.why + '<br>Caught <b>' + G.caught + ' / ' + G.quota + '</b> &middot; Score <b>' + G.score + '</b>';
+  $('resText').innerHTML += '<br><span style="color:#ffe066">&#127903; +' + G.earned + ' tickets</span> (you have ' + save.tickets + '; spend them on bot style!)';
   $('bResMain').textContent = r.win ? (G.night < NIGHTS ? 'Next night' : 'Play again') : 'Try again';
   show('result');
 }
@@ -861,6 +1064,7 @@ function update(dt) {
   const K = input.keys; if (K.ArrowLeft || K.a) ix -= 1; if (K.ArrowRight || K.d) ix += 1; if (K.ArrowUp || K.w) iy -= 1; if (K.ArrowDown || K.s) iy += 1;
   const il = Math.hypot(ix, iy); if (il > 1) { ix /= il; iy /= il; }
   if (G.over || G.intro > 0.6) { ix = iy = 0; }
+  if (p.frozenT > 0) { p.frozenT -= dt; ix = iy = 0; }
   const wantSprint = (input.sprintBtn || K.Shift) && il > 0.1;
   if (p.exhausted && p.stam > st.staminaMax * 0.3) p.exhausted = false;
   const sprinting = wantSprint && !p.exhausted && p.stam > 0;
@@ -868,21 +1072,50 @@ function update(dt) {
   let slow = 1; for (const d of G.decals) if (d.type === 'soda' && Math.abs(d.x - p.x) < 22 && Math.abs(d.y - p.y) < 14) { slow = 0.72; break; }
   if (MAP[Math.floor(p.y / TILE)][Math.floor(p.x / TILE)] === 'b') slow *= 0.7;
   const sp = st.speed * (sprinting ? 1.55 : 1) * slow;
-  const k = Math.min(1, dt * 12); p.vx += (ix * sp - p.vx) * k; p.vy += (iy * sp - p.vy) * k;
+  let spm = 1;
+  if (p.pw) {
+    const pt = p.pw.type; p.pw.t -= dt;
+    if (pt === 'slide' || pt === 'charge') {
+      spm = pt === 'slide' ? 2.0 : 2.1;
+      if (Math.hypot(ix, iy) < 0.1) { ix = p.dir[0]; iy = p.dir[1]; } else { const l2 = Math.hypot(ix, iy); p.dir = [ix / l2, iy / l2]; ix = p.dir[0]; iy = p.dir[1]; }
+    }
+    if (pt === 'slide') { p.pw.trail -= dt; if (p.pw.trail <= 0) { p.pw.trail = 0.07; G.ice.push({ x: p.x, y: p.y, life: 6 }); } }
+    if (pt === 'charge' && Math.random() < dt * 10) { G.shake = Math.max(G.shake, 0.1); G.fx.push({ type: 'p', x: p.x + rnd(-10, 10), y: p.y + 10, vx: rnd(-40, 40), vy: rnd(-40, 0), t: 0, dur: 0.5, col: '#a1887f' }); }
+    if (p.pw.t <= 0) p.pw = null;
+  }
+  const k = Math.min(1, dt * 12);
+  if (p.pw && p.pw.type === 'dash') { p.vx = p.dir[0] * 720; p.vy = p.dir[1] * 720; }
+  else { p.vx += (ix * sp * spm - p.vx) * k; p.vy += (iy * sp * spm - p.vy) * k; }
   moveBody(p, p.vx * dt, p.vy * dt, 12);
+  {
+    const [vx, vy] = tileOf(p);
+    if (MAP[vy][vx] === 'v') {
+      if (!p.ventLock && Math.hypot(p.x - vx * TILE - 24, p.y - vy * TILE - 24) < 18) {
+        const to = VENT_TO[vx + ',' + vy]; poof(p.x, p.y); p.x = to[0] * TILE + 24; p.y = to[1] * TILE + 24; p.ventLock = true;
+        poof(p.x, p.y); Snd.vent(); floatText(p.x, p.y - 90, 'CLANK!', '#b0bec5', 16); G.cam.x = p.x; G.cam.y = p.y;
+      }
+    } else p.ventLock = false;
+  }
   const spd = Math.hypot(p.vx, p.vy); p.walk = clamp(spd / 120, 0, 1); p.anim += dt * (0.6 + p.walk * 0.6) * (sprinting ? 1.35 : 1);
   if (Math.abs(p.vx) > 10) p.look = clamp(p.vx / 150, -1, 1);
   if (spd > 30) { p.stepT -= dt * (sprinting ? 1.5 : 1); if (p.stepT <= 0) { p.stepT = 0.28; Snd.step(sprinting); } }
   if (p.roarCd > 0) p.roarCd -= dt; if (p.grab > 0) p.grab -= dt;
+  if (p.powerCd > 0) p.powerCd -= dt; if (p.spotCd > 0) p.spotCd -= dt; if (p.say) { p.say.t -= dt; if (p.say.t <= 0) p.say = null; }
   // flow field
   G.flowT -= dt; if (G.flowT <= 0) { G.flowT = 0.25; const [px, py] = tileOf(p); bfs(px, py, G.flow); }
   // kids
   for (const kd of G.kids) if (!kd.gone) updateKid(kd, dt);
   G.kids = G.kids.filter(kd => !kd.gone);
+  for (const ic of G.ice) ic.life -= dt; G.ice = G.ice.filter(ic => ic.life > 0);
+  if (G.ice.length) for (const kd of G.kids) if (kd.bad && kd.stunT <= 0 && kd.slipCd <= 0 && kd.state !== 'caught' && !kd.hidden) for (const ic of G.ice) if (Math.abs(ic.x - kd.x) < 16 && Math.abs(ic.y - kd.y) < 12) { kd.stunT = 1.3; kd.slipCd = 3; say(kd, 'WHOA!'); break; }
+  for (const b of G.baits) { b.life -= dt; if (b.type === 'box' && b.life > 0 && dist(b, p) < 30) { b.life = 0; p.stam = st.staminaMax; p.exhausted = false; p.roarCd = 0; p.powerCd = 0; toast('PIZZA POWER! Battery and powers recharged!', 2.5, '#ffb74d'); floatText(p.x, p.y - 90, 'PIZZA POWER!', '#ffb74d', 20); Snd.win(); } }
+  G.baits = G.baits.filter(b => b.life > 0);
+  if (G.guard && !G.over) updateGuard(G.guard, dt); else G.inCone = false;
+  const grabBonus = p.pw ? (p.pw.type === 'dash' ? 24 : p.pw.type === 'charge' ? 16 : 0) : 0;
   if (!G.over) for (const kd of G.kids) {
     if (kd.state === 'caught') continue;
     const d = dist(kd, p);
-    if (kd.bad && d < st.reach + 9) catchKid(kd);
+    if (kd.bad && d < st.reach + 9 + grabBonus) catchKid(kd);
     else if (!kd.bad && d < 30 && kd.hiT <= 0 && kd.cryT <= 0) { kd.hiT = 8; say(kd, pick(['High five!', 'Hi ' + botName(build).split(' ')[0] + '!', 'Whoa, cool bot!'])); G.score += 10; floatText(kd.x, kd.y - 60, '+10', '#69f0ae', 14); Snd.hi(); }
   }
   // naughty conversions
@@ -893,8 +1126,22 @@ function update(dt) {
     if (bads < G.maxBad) {
       const goods = G.kids.filter(kd => !kd.bad && kd.cryT <= 0); goods.sort((a, b) => dist(b, p) - dist(a, p));
       const kd = goods[Math.floor(Math.random() * Math.min(3, goods.length))];
-      if (kd) { kd.bad = true; kd.state = 'wander'; kd.path = null; say(kd, 'hehehe...', 2); Snd.giggle(); toast('A kid turned NAUGHTY in the ' + (roomAt(...tileOf(kd)) || 'pizzeria') + '!', 2.4, '#ff8a80'); }
+      if (kd) { makeBad(kd, kindFor(G.night)); kd.state = 'wander'; kd.path = null; say(kd, 'hehehe...', 2); Snd.giggle(); toast('A ' + KIND_NAME[kd.kind] + 'kid turned NAUGHTY in the ' + (roomAt(...tileOf(kd)) || 'pizzeria') + '!', 2.4, '#ff8a80'); }
     }
+  }
+  // pizza delivery event
+  if (!G.over && G.intro <= 0) {
+    G.deliveryT -= dt;
+    if (G.deliveryT <= 0) {
+      G.deliveryT = rnd(32, 45); let spot = null;
+      for (let i = 0; i < 40 && !spot; i++) { const [x, y] = farTile(300); if (['Dining Hall', 'Party Room', 'Arcade'].includes(roomAt(x, y)) && MAP[y][x] !== 'v') spot = [x, y]; }
+      if (spot) { G.baits.push({ x: spot[0] * TILE + 24, y: spot[1] * TILE + 28, life: 20, type: 'box' }); toast('PIZZA DELIVERY in the ' + roomAt(...spot) + '! Naughty kids are going for it...', 3.2, '#ffb74d'); Snd.chime(); }
+    }
+  }
+  // power outages
+  if ((G.night === 2 || G.night === 5) && !G.over && G.intro <= 0) {
+    if (G.outage > 0) { G.outage -= dt; if (G.outage <= 0) { toast('Power is back on!', 1.5, '#69f0ae'); Snd.humStart(); } }
+    else { G.outT -= dt; if (G.outT <= 0) { G.outT = rnd(18, 28); G.outage = 7; toast('POWER OUTAGE! Look for glowing red eyes...', 2.5, '#ff8a80'); Snd.humStop(); Snd.powerDown(); } }
   }
   // new arrivals at the front door
   for (let i = G.arrivals.length - 1; i >= 0; i--) { G.arrivals[i] -= dt; if (G.arrivals[i] <= 0) { G.arrivals.splice(i, 1); G.kids.push(makeKid(1, ri(15, 16), false)); } }
@@ -949,17 +1196,20 @@ function renderGame(t) {
   const vw = Math.min(MW * TILE - vx0, SW / zoom() + 20), vh = Math.min(MH * TILE - vy0, SH / zoom() + 20);
   c.drawImage(mapCanvas, vx0, vy0, vw, vh, vx0, vy0, vw, vh);
   for (const d of G.decals) drawDecal(c, d);
+  for (const ic of G.ice) { c.globalAlpha = Math.min(1, ic.life / 2) * 0.75; ell(c, ic.x, ic.y, 17, 9, '#b3e5fc'); ell(c, ic.x - 5, ic.y - 3, 5, 2, '#fff'); c.globalAlpha = 1; }
+  for (const b of G.baits) drawBait(c, b, t);
   // time-out kids
   G.timeout.forEach((k, i) => { c.save(); c.translate(40 * TILE + 26 + (i % 3) * 46, 18 * TILE + 40 + Math.floor(i / 3) * 20); drawKid(c, k); c.restore(); });
   // entities
   const ents = G.kids.slice(); ents.push(p); ents.sort((a, b) => a.y - b.y);
   for (const e of ents) {
     c.save(); c.translate(e.x, e.y);
-    if (e === p) drawBot(c, build, { t: p.anim, walk: p.walk, grab: Math.max(0, p.grab) / 0.35, glow: true, look: p.look, seed: 0 });
+    if (e === p) { if (p.pw && p.pw.type === 'slide') c.rotate(p.dir[0] * 0.35); if (p.pw && p.pw.type === 'dash') { c.globalAlpha = 0.35; c.save(); c.translate(-p.dir[0] * 22, -p.dir[1] * 22); drawBot(c, build, { t: p.anim, noShadow: true }); c.restore(); c.globalAlpha = 1; } drawBot(c, build, { t: p.anim, walk: p.walk, grab: Math.max(0, p.grab) / 0.35, glow: true, look: p.look, seed: 0, acc: save.acc }); }
     else { if (e.state === 'caught') { c.translate(0, -Math.sin((0.7 - e.caughtT) / 0.7 * Math.PI) * 18); c.rotate(Math.sin(e.anim * 30) * 0.15); } drawKid(c, e); }
     c.restore();
   }
-  for (const e of G.kids) if (e.say) bubble(c, e.x, e.y - 52 - (e.bad ? 2 : 14), e.say.text, e.bad ? '#ffcdd2' : '#e8f5e9');
+  if (p.say) bubble(c, p.x, p.y - 108, p.say.text, '#fff59d');
+  for (const e of G.kids) if (e.say && !e.hidden) bubble(c, e.x, e.y - 52 - (e.bad ? 2 : 14), e.say.text, e.bad ? '#ffcdd2' : '#e8f5e9');
   // fx
   for (const f of G.fx) {
     const a = 1 - f.t / f.dur;
@@ -970,26 +1220,41 @@ function renderGame(t) {
   // darkness
   c.setTransform(1, 0, 0, 1, 0, 0);
   const psx = (p.x - G.cam.x) * z + cv.width / 2 + shx * DPR, psy = (p.y - 30 - G.cam.y) * z + cv.height / 2 + shy * DPR;
-  let vis = G.st.vision * z; if (G.flick > 0) vis *= Math.random() < 0.5 ? 0.35 : 0.9;
+  const sight = p.pw && p.pw.type === 'sight';
+  let vis = G.st.vision * z * (sight ? 2 : 1) * (G.outage > 0 ? 0.45 : 1); if (G.flick > 0) vis *= Math.random() < 0.5 ? 0.35 : 0.9;
+  const darkA = G.outage > 0 ? 0.97 : sight ? 0.7 : 0.93;
   const g = c.createRadialGradient(psx, psy, vis * 0.3, psx, psy, vis);
-  g.addColorStop(0, 'rgba(5,2,10,0)'); g.addColorStop(0.7, 'rgba(5,2,10,.55)'); g.addColorStop(1, 'rgba(5,2,10,.93)');
+  g.addColorStop(0, 'rgba(5,2,10,0)'); g.addColorStop(0.7, 'rgba(5,2,10,.55)'); g.addColorStop(1, 'rgba(5,2,10,' + darkA + ')');
   c.fillStyle = g; c.fillRect(0, 0, cv.width, cv.height);
+  if (sight) { c.fillStyle = 'rgba(80,255,120,.08)'; c.fillRect(0, 0, cv.width, cv.height); }
+  c.setTransform(z, 0, 0, z, ox, oy);
+  if (G.outage > 0) { for (const k of G.kids) { if (k.hidden || k.state === 'caught') continue; const col = k.bad ? '#ff1744' : '#fff9c4'; circ(c, k.x - 3, k.y - 34, 1.9, col); circ(c, k.x + 3, k.y - 34, 1.9, col); } }
+  if (G.guard) {
+    const gd = G.guard, gx = gd.x, gy = gd.y - 25, gr = c.createRadialGradient(gx, gy, 10, gx, gy, GUARD_RANGE);
+    gr.addColorStop(0, G.inCone ? 'rgba(255,120,100,.5)' : 'rgba(255,245,180,.45)'); gr.addColorStop(1, 'rgba(255,245,180,0)');
+    c.fillStyle = gr; c.beginPath(); c.moveTo(gx, gy); c.arc(gx, gy, GUARD_RANGE, gd.ang - GUARD_HALF, gd.ang + GUARD_HALF); c.closePath(); c.fill();
+    c.save(); c.translate(gd.x, gd.y); drawGuard(c, gd); c.restore();
+    if (gd.say) bubble(c, gd.x, gd.y - 74, gd.say.text, '#bbdefb');
+  }
+  c.setTransform(1, 0, 0, 1, 0, 0);
   if (G.mess > 75) { c.fillStyle = 'rgba(255,0,40,' + (0.08 + 0.08 * Math.sin(t * 6)) + ')'; c.fillRect(0, 0, cv.width, cv.height); }
   // naughty kid markers (visible through the dark)
   c.setTransform(DPR, 0, 0, DPR, 0, 0);
   const zz = zoom();
   for (const k of G.kids) {
     if (!k.bad || k.state === 'caught') continue;
+    if (k.kind === 'sneak' && !sight && (k.hidden || dist(k, G.p) > G.st.vision * 0.8)) continue;
+    const boss = k.kind === 'boss';
     const sx = (k.x - G.cam.x) * zz + SW / 2 + shx, sy = (k.y - 40 - G.cam.y) * zz + SH / 2 + shy;
     if (sx > 10 && sx < SW - 10 && sy > 10 && sy < SH - 10) {
       const pulse = 1 + Math.sin(t * 8) * 0.12;
       c.save(); c.translate(sx, sy - 18 * zz); c.scale(pulse, pulse);
-      circ(c, 0, 0, 10, k.stunT > 0 ? 'rgba(255,235,59,.9)' : 'rgba(229,57,53,.9)'); c.fillStyle = '#fff'; c.font = '900 15px Trebuchet MS, sans-serif'; c.textAlign = 'center'; c.fillText(k.stunT > 0 ? 'Z' : '!', 0, 5.5);
+      circ(c, 0, 0, boss ? 13 : 10, k.stunT > 0 ? 'rgba(255,235,59,.9)' : boss ? 'rgba(255,214,0,.95)' : 'rgba(229,57,53,.9)'); c.fillStyle = boss ? '#6a1b9a' : '#fff'; c.font = '900 15px Trebuchet MS, sans-serif'; c.textAlign = 'center'; c.fillText(k.stunT > 0 ? 'Z' : k.state === 'bait' ? '~' : boss ? 'K' : '!', 0, 5.5);
       c.restore();
     } else {
       const cx = SW / 2, cy = SH / 2, a = Math.atan2(sy - cy, sx - cx);
       const ex = clamp(sx, 26, SW - 26), ey = clamp(sy, 70, SH - 26);
-      c.save(); c.translate(ex, ey); c.rotate(a); c.globalAlpha = 0.85; polyP(c, [14, 0, -8, -10, -8, 10]); c.fillStyle = '#e53935'; c.fill(); c.lineWidth = 2; c.strokeStyle = '#fff'; c.stroke(); c.restore();
+      c.save(); c.translate(ex, ey); c.rotate(a); c.globalAlpha = 0.85; polyP(c, boss ? [18, 0, -10, -13, -10, 13] : [14, 0, -8, -10, -8, 10]); c.fillStyle = boss ? '#ffd600' : '#e53935'; c.fill(); c.lineWidth = 2; c.strokeStyle = '#fff'; c.stroke(); c.restore();
     }
   }
   drawHUD(c, t);
@@ -1001,7 +1266,8 @@ function drawHUD(c, t) {
   const txt = (s, x, y, size, col, align) => { c.font = '900 ' + size + 'px Trebuchet MS, sans-serif'; c.textAlign = align || 'left'; c.strokeText(s, x, y); c.fillStyle = col; c.fillText(s, x, y); };
   const hour = Math.min(6, Math.floor(G.t / (G.nightLen / 6)));
   txt(HOURS[hour], L, T + 26, 26, '#fff');
-  txt('NIGHT ' + G.night, L, T + 44, 13, '#ffb3d1');
+  txt('NIGHT ' + G.night + (G.outage > 0 ? '  - NO POWER!' : ''), L, T + 44, 13, G.outage > 0 ? '#ff5252' : '#ffb3d1');
+  if (G.boss) { const bk = G.kids.find(k => k.kind === 'boss' && k.state !== 'caught'); txt(bk ? 'KING: ' + bk.lives + ' to go' : 'KING: BUSTED!', L, T + 62, 12, '#ffd600'); }
   // caught
   txt('NAUGHTY KIDS CAUGHT', SW / 2, T + 14, 11, '#ffb3d1', 'center');
   txt(G.caught + ' / ' + G.quota, SW / 2, T + 38, 24, '#ffe066', 'center');
@@ -1019,6 +1285,9 @@ function drawHUD(c, t) {
   txt(p.exhausted ? 'RECHARGING' : 'BATTERY', bx + bw / 2, by - 4, 10, p.exhausted ? '#ff8a80' : '#b2dfdb', 'center');
   $('btnRoar').style.setProperty('--cd', p.roarCd > 0 ? (1 - p.roarCd / st.roarCd).toFixed(3) : 1);
   $('btnRoar').style.opacity = p.roarCd > 0 ? 0.6 : 1;
+  $('btnPower').style.setProperty('--cd', p.powerCd > 0 ? (1 - p.powerCd / POWERS[build.head].cd).toFixed(3) : 1);
+  $('btnPower').style.opacity = p.powerCd > 0 || p.pw ? 0.6 : 1;
+  if (G.inCone && !G.over) { const pulse = 1 + Math.sin(t * 14) * 0.08; c.save(); c.translate(SW / 2, SH * 0.3); c.scale(pulse, pulse); txt(p.frozenT > 0 ? 'SPOTTED!' : 'FREEZE!', 0, 0, 34, '#ff5252', 'center'); c.restore(); }
   // joystick
   if (input.joy) {
     const j = input.joy; c.globalAlpha = 0.35; circ(c, j.ox, j.oy, 55, '#fff'); c.globalAlpha = 0.7;
@@ -1032,7 +1301,7 @@ function drawHUD(c, t) {
   // intro card
   if (G.intro > 0) {
     const a = Math.min(1, G.intro); c.globalAlpha = a; c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(0, SH / 2 - 60, SW, 120);
-    txt('NIGHT ' + G.night, SW / 2, SH / 2 - 10, 40, '#ffe066', 'center'); txt('12:00 AM  -  Catch ' + G.quota + ' naughty kids!', SW / 2, SH / 2 + 26, 17, '#fff', 'center'); c.globalAlpha = 1;
+    txt('NIGHT ' + G.night + ': ' + NIGHT_INFO[G.night].title.toUpperCase(), SW / 2, SH / 2 - 10, 32, '#ffe066', 'center'); txt('12:00 AM  -  Catch ' + G.quota + ' naughty kids!', SW / 2, SH / 2 + 26, 17, '#fff', 'center'); c.globalAlpha = 1;
   }
   if (mode !== 'game') { c.fillStyle = 'rgba(5,2,10,.6)'; c.fillRect(0, 0, SW, SH); return; }
   if (G.over && G.result) { c.globalAlpha = 0.9; txt(G.result.win ? 'ALL CAUGHT!' : (G.mess >= 100 ? 'TOO MESSY!' : '6 AM!'), SW / 2, SH / 2, 40, G.result.win ? '#69f0ae' : '#ff5252', 'center'); c.globalAlpha = 1; }
@@ -1067,7 +1336,7 @@ function renderMenu(t) {
     const s = clamp(SH / 125, 1, 5), x = Math.min(SW * 0.22, SW * 0.44 - 40), y = SH * 0.9;
     spot(c, x, y, 90 * s * 0.6, 0.35);
     c.save(); c.translate(x, y); c.scale(s, s);
-    drawBot(c, build, { t, glow: true, look: Math.sin(t * 0.8) * 0.8, walk: mode === 'nights' ? 0.0 : 0 });
+    drawBot(c, build, { t, glow: true, look: Math.sin(t * 0.8) * 0.8, acc: ACCS[accView].id });
     c.restore();
     if (mode === 'nights' || mode === 'result') { c.fillStyle = 'rgba(11,7,16,.55)'; c.fillRect(0, 0, SW, SH); }
   }
@@ -1089,9 +1358,11 @@ sb.addEventListener('pointerdown', e => { e.preventDefault(); input.sprintBtn = 
 const sUp = () => { input.sprintBtn = false; sb.classList.remove('held'); };
 sb.addEventListener('pointerup', sUp); sb.addEventListener('pointercancel', sUp); sb.addEventListener('lostpointercapture', sUp);
 $('btnRoar').addEventListener('pointerdown', e => { e.preventDefault(); roar(); });
+$('btnPower').addEventListener('pointerdown', e => { e.preventDefault(); usePower(); });
 addEventListener('keydown', e => {
   input.keys[e.key.length === 1 ? e.key.toLowerCase() : e.key] = true;
   if (mode === 'game' && e.key === ' ') roar();
+  if (mode === 'game' && (e.key === 'e' || e.key === 'E')) usePower();
   if (e.key === 'Escape') window.androidBack();
 });
 addEventListener('keyup', e => { input.keys[e.key.length === 1 ? e.key.toLowerCase() : e.key] = false; });

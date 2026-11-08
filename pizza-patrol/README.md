@@ -16,9 +16,19 @@ Requires Android 7.0 or newer. The game plays in landscape.
 - Catch the quota before **6 AM**, and don't let the **MESS** meter reach 100%.
 - 5 nights, each harder than the last. Progress and best scores are saved on the device.
 
+### Special features
+- **Head powers (POWER button):** Gator *Chomp Dash* (lunge), Penguin *Ice Slide* (icy trail kids slip on),
+  Raccoon *Pizza Bait* (kids stop to munch), Moose *Stampede* (charge), Owl *Night Sight* (see far, reveal sneaky kids).
+- **Air vents** link the dining hall, arcade, kitchen, party room, restrooms and office. You and the kids can both use them.
+- **Pizza deliveries** lure naughty kids into a group. Grab the box yourself to recharge your battery and powers.
+- **Naughty kid types:** Skaters (fast) and Sneaky kids (hoodies, hide in the ball pit, invisible in the dark).
+- **Themed nights:** 1 Opening Night, 2 Lights Out (power outages), 3 The Night Guard (freeze when his flashlight
+  hits you, or he catches you moving), 4 Sugar Rush (everyone is fast), 5 The Prankster King (boss you must catch 3 times).
+- **Tickets & prize shop:** earn tickets each night and buy accessories for your bot: shades, chef hat, headphones, propeller cap, crown.
+
 ## Project layout
 - `app/assets/index.html`: the whole game (HTML5 canvas + synthesized WebAudio, no external assets).
-  Open it in a desktop browser to play-test (WASD/arrows, Shift = sprint, Space = roar, Esc = pause).
+  Open it in a desktop browser to play-test (WASD/arrows, Shift = sprint, Space = roar, E = power, Esc = pause).
 - `app/src/.../MainActivity.java`: full-screen WebView wrapper.
 - `build.sh`: builds and signs the APK **without the Android SDK**, using Maven Central artifacts only
   (aapt2 and framework resources from apktool-lib, dalvik-dx, apksig). Needs JDK 11+, python3, curl, unzip, zip.
