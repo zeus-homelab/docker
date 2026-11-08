@@ -29,6 +29,6 @@ if [ ! -f debug.keystore ]; then
       -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Backbeat Blitz Debug"
 fi
 apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android \
-    --out BackbeatBlitz.apk "$B/app.aligned.apk"
+    --v4-signing-enabled false --out BackbeatBlitz.apk "$B/app.aligned.apk"
 apksigner verify --verbose BackbeatBlitz.apk | head -4
 ls -la BackbeatBlitz.apk
