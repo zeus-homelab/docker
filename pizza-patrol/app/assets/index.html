@@ -142,6 +142,7 @@
     <div class="brow" style="align-items:center"><div class="chips" id="chips"></div><button class="btn green" id="bToNights">Go!&nbsp;&#9654;</button></div>
   </div>
   <button class="btn alt small" id="bBack" style="position:absolute;top:10px;left:10px">&#9664; Menu</button>
+  <button class="btn alt small" id="bWorn" style="position:absolute;top:10px;left:112px">Worn: On</button>
 </div>
 
 <div id="nights" class="screen">
@@ -254,8 +255,9 @@ function star(c, x, y, r, col) { c.beginPath(); for (let i = 0; i < 10; i++) { c
 function eye(c, x, y, r, o, pcol) {
   const blink = ((o.t || 0) + (o.seed || 0)) % 4.2 < 0.13;
   if (blink) { c.beginPath(); c.moveTo(x - r, y); c.lineTo(x + r, y); c.lineWidth = 2; c.stroke(); return; }
-  circS(c, x, y, r, '#fff');
   const px = x + (o.look || 0) * r * 0.35;
+  if (WORN && o.glow) { circS(c, x, y, r, '#120d0b'); c.save(); c.globalAlpha = 0.35; circ(c, px, y, r * 0.75, pcol); c.restore(); circ(c, px, y, r * 0.3, pcol); circ(c, px, y, r * 0.13, '#fff'); return; }
+  circS(c, x, y, r, WORN ? '#efe6c8' : '#fff');
   if (o.glow) { c.save(); c.globalAlpha = 0.45; circ(c, px, y, r * 0.95, pcol); c.restore(); }
   circ(c, px, y, r * 0.52, o.glow ? pcol : '#151515');
   circ(c, px, y, r * 0.26, '#111');
@@ -263,11 +265,12 @@ function eye(c, x, y, r, o, pcol) {
 }
 
 /* ----- animatronic ----- */
+let WORN = false;
 const LEGLEN = { gator: 14, penguin: 11, raccoon: 18, moose: 24, owl: 15 };
 const ARMLEN = { gator: 14, penguin: 17, raccoon: 27, moose: 20, owl: 22 };
 function drawBot(c, b, o) {
   o = o || {};
-  const t = o.t || 0, walk = o.walk || 0;
+  const t = o.t || 0, walk = o.walk || 0; WORN = !!o.worn;
   const ll = LEGLEN[b.legs], ph = t * 11, sw = Math.sin(ph) * walk;
   const bob = Math.abs(Math.cos(ph)) * 2.4 * walk + Math.sin(t * 2.2) * 0.7;
   c.save(); c.lineJoin = 'round'; c.lineCap = 'round'; c.lineWidth = 2; c.strokeStyle = OUT;
@@ -285,7 +288,7 @@ function drawBot(c, b, o) {
   polyP(c, [0, top + 3, 8, top - 1, 8, top + 8]); fill(c, T);
   circS(c, 0, top + 3.5, 2.6, T);
   if (o.acc && o.acc !== 'none') drawAcc(c, o.acc, b.head, top - 12, t);
-  c.restore();
+  c.restore(); WORN = false;
 }
 const HEAD_TOP = { gator: -18, penguin: -15, raccoon: -14, moose: -14, owl: -16 };
 const EYE_POS = { gator: [8, -12], penguin: [6, -1], raccoon: [6, -1], moose: [6, -5], owl: [7, -1] };
@@ -368,6 +371,7 @@ function drawLegs(c, s, C, ll, sw) {
       c.beginPath(); c.moveTo(0, -2); c.lineTo(-6, 1.5); c.moveTo(0, -2); c.lineTo(0, 2.5); c.moveTo(0, -2); c.lineTo(6, 1.5); c.stroke();
       c.strokeStyle = OUT; c.lineWidth = 2;
     }
+    if (WORN && s !== 'owl') { const y = top + ll * 0.42; c.fillStyle = '#5f6b72'; c.fillRect(-2.5, y, 5, 5); c.fillStyle = '#90a4ae'; c.fillRect(-1, y, 2, 5); circ(c, 0, y + 2.5, 1.6, '#cfd8dc'); }
     c.restore();
   }
 }
@@ -382,6 +386,17 @@ function drawTorso(c, s, C, top, tw, th) {
     if (s === 'raccoon') { c.fillStyle = C.dark; for (let i = 0; i < 3; i++) { c.fillRect(-tw / 2 + 1, top + 8 + i * 7, 5, 3); c.fillRect(tw / 2 - 6, top + 8 + i * 7, 5, 3); } }
     if (s === 'moose') { c.fillStyle = C.dark; for (let i = -3; i <= 3; i++) { c.beginPath(); c.arc(i * 5, top + 2, 3.6, 0, Math.PI); c.fill(); } }
     if (s === 'owl') { c.strokeStyle = C.main; c.lineWidth = 1.5; for (let i = 0; i < 3; i++) for (let j = -1; j <= 1; j++) { c.beginPath(); c.arc(j * 6 + (i % 2) * 3, top + 15 + i * 5, 2.4, 0.2, Math.PI - 0.2); c.stroke(); } c.strokeStyle = OUT; c.lineWidth = 2; }
+  }
+  if (WORN) {
+    for (const [x, y, r] of [[-tw * 0.3, 8, 4], [tw * 0.22, 22, 3], [-tw * 0.1, 27, 2.5]]) circ(c, x, top + y, r, 'rgba(40,25,10,.25)');
+    const hx = tw * 0.24, hy = top + th * 0.33;
+    c.beginPath(); c.ellipse(hx, hy, 5, 4, 0.3, 0, TAU); c.fillStyle = '#1b1b1b'; c.fill();
+    c.fillStyle = '#90a4ae'; c.fillRect(hx - 1, hy - 3, 1.5, 6);
+    c.lineWidth = 1.2; c.strokeStyle = '#e53935'; c.beginPath(); c.moveTo(hx - 3, hy - 1); c.quadraticCurveTo(hx, hy + 3, hx + 3, hy - 2); c.stroke();
+    c.strokeStyle = '#fdd835'; c.beginPath(); c.moveTo(hx - 2, hy + 2); c.lineTo(hx + 3, hy + 1); c.stroke();
+    c.strokeStyle = 'rgba(0,0,0,.55)'; c.lineWidth = 1;
+    for (let i = 0; i < 3; i++) { const sx = -tw * 0.3 + i * 3.5, sy = top + th * 0.75; c.beginPath(); c.moveTo(sx - 1.2, sy - 1.2); c.lineTo(sx + 1.2, sy + 1.2); c.moveTo(sx + 1.2, sy - 1.2); c.lineTo(sx - 1.2, sy + 1.2); c.stroke(); }
+    c.strokeStyle = OUT; c.lineWidth = 2;
   }
   // bolts & seam
   circ(c, -tw / 2 + 4, top + 5, 1.8, '#b0bec5'); circ(c, tw / 2 - 4, top + 5, 1.8, '#b0bec5');
@@ -415,11 +430,13 @@ function drawArms(c, s, C, sy, tw, sw, grab, t) {
       c.strokeStyle = OUT; c.lineWidth = 2;
       ell(c, side * 6, len * 1.02, 4, 3, C.accent);
     }
+    if (WORN) { if (s === 'gator' || s === 'raccoon' || s === 'moose') { const y = len * 0.5; c.fillStyle = '#5f6b72'; c.fillRect(-2.5, y, 5, 4); circ(c, 0, y + 2, 1.5, '#cfd8dc'); } else circ(c, side * 4, len * 0.6, 2.5, 'rgba(40,25,10,.3)'); }
     c.restore();
   }
 }
 function drawHead(c, s, C, cy, o) {
   const P = C.pupil;
+  c.save(); if (WORN) { c.translate(0, cy + 12); c.rotate(-0.1); c.translate(0, -(cy + 12)); }
   if (s === 'gator') {
     ellS(c, 0, cy - 2, 17, 13, C.main);
     for (const sd of [-1, 1]) { circS(c, sd * 8, cy - 12, 6.5, C.main); eye(c, sd * 8, cy - 12, 4.4, o, P); }
@@ -458,6 +475,13 @@ function drawHead(c, s, C, cy, o) {
     for (const sd of [-1, 1]) { circS(c, sd * 7, cy - 1, 7, C.accent); eye(c, sd * 7, cy - 1, 5.2, o, P); }
     polyP(c, [-3, cy + 5, 3, cy + 5, 0, cy + 11]); fill(c, C.accent);
   }
+  if (WORN) {
+    circ(c, -9, cy - 8, 3.2, 'rgba(40,25,10,.25)'); circ(c, 8, cy + 6, 2.4, 'rgba(40,25,10,.22)');
+    c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 1; c.beginPath(); c.moveTo(4, cy - 13); c.lineTo(7, cy - 9); c.lineTo(5, cy - 6); c.lineTo(8, cy - 3); c.stroke();
+    c.beginPath(); c.moveTo(-15, cy + 3); c.lineTo(-10, cy + 1); c.lineTo(-9, cy + 7); c.lineTo(-13, cy + 9); c.closePath(); c.fillStyle = '#546e7a'; c.fill(); circ(c, -12, cy + 5, 1.2, '#cfd8dc');
+    c.strokeStyle = OUT; c.lineWidth = 2;
+  }
+  c.restore();
 }
 
 /* ----- kids ----- */
@@ -696,6 +720,7 @@ const Snd = {
   grab() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.15, 'square', 0.09, null, i * 0.06)); this.noise(0.12, 0.15, 3000, 0, 'highpass'); },
   giggle() { for (let i = 0; i < 4; i++) this.tone(900 + Math.random() * 300, 0.07, 'triangle', 0.08, 1300, i * 0.09); },
   hi() { this.tone(700, 0.08, 'triangle', 0.06, 900); this.tone(900, 0.1, 'triangle', 0.06, 1100, 0.09); },
+  snap() { this.noise(0.12, 0.3, 4000, 0, 'highpass'); this.tone(1800, 0.05, 'square', 0.06); this.tone(900, 0.3, 'sine', 0.04, 2400, 0.05); },
   cry() { this.tone(600, 0.5, 'triangle', 0.08, 380); },
   click() { this.tone(660, 0.05, 'square', 0.06); },
   whir() { this.tone(300, 0.25, 'sawtooth', 0.03, 520); },
@@ -848,7 +873,7 @@ function updateMusic() {
 
 /* ================= save data ================= */
 const SAVE_KEY = 'mpp_save_v1';
-const save = { unlocked: 1, best: {}, build: { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, sound: true, tickets: 0, owned: ['none', 'party'], acc: 'party' };
+const save = { unlocked: 1, best: {}, build: { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, sound: true, worn: true, tickets: 0, owned: ['none', 'party'], acc: 'party' };
 try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { }
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { } }
 const build = save.build;
@@ -882,6 +907,9 @@ function refreshBuilder() {
 $('chips').innerHTML = ORDER.map(s => '<button class="btn small alt" data-preset="' + s + '" style="background:' + SPECIES[s].main + ';color:#fff">' + SPECIES[s].pre + (s === 'penguin' ? 'ny' : s === 'raccoon' ? 'co' : s === 'moose' ? 'el' : s === 'owl' ? 'lie' : '') + '</button>').join('') + '<button class="btn small alt" id="bRandom" title="Random">&#127922;</button>';
 document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { const s = b.dataset.preset; build.head = build.body = build.arms = build.legs = s; Snd.chime(); refreshBuilder(); persist(); }));
 document.querySelectorAll('.arr').forEach(b => b.addEventListener('click', () => cyclePart(b.dataset.part, +b.dataset.d)));
+function refreshWorn() { $('bWorn').textContent = 'Worn look: ' + (save.worn ? 'On' : 'Off'); }
+$('bWorn').onclick = () => { save.worn = !save.worn; persist(); Snd.whir(); refreshWorn(); };
+refreshWorn();
 let accView = Math.max(0, ACCS.findIndex(a => a.id === save.acc));
 function refreshAcc() {
   const a = ACCS[accView], owned = save.owned.includes(a.id);
@@ -1072,7 +1100,7 @@ function checkWin() {
   endNight(true);
 }
 function catchKid(k) {
-  k.hidden = false;
+  k.hidden = false; G.snap = { t: 0 }; Snd.snap();
   if (k.kind === 'boss' && k.lives > 1) {
     k.lives--; G.caught++; G.score += 150; poof(k.x, k.y); floatText(k.x, k.y - 50, 'ALMOST! +150', '#ffd600', 20);
     const [x, y] = farTile(550); k.x = x * TILE + 24; k.y = y * TILE + 24; k.state = 'wander'; k.path = null; k.ft = null; k.stunT = 0; poof(k.x, k.y);
@@ -1271,6 +1299,7 @@ function update(dt) {
   // fx
   for (const f of G.fx) { f.t += dt; if (f.type === 'p') { f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 200 * dt; } }
   G.fx = G.fx.filter(f => f.t < f.dur);
+  if (G.snap) { G.snap.t += dt; if (G.snap.t > 0.6) G.snap = null; }
   if (G.toasts.length) { G.toasts[0].t += dt; if (G.toasts[0].t > G.toasts[0].dur) G.toasts.shift(); }
   if (G.shake > 0) G.shake -= dt;
   // camera
@@ -1319,7 +1348,7 @@ function renderGame(t) {
   const ents = G.kids.slice(); ents.push(p); ents.sort((a, b) => a.y - b.y);
   for (const e of ents) {
     c.save(); c.translate(e.x, e.y);
-    if (e === p) { if (p.pw && p.pw.type === 'slide') c.rotate(p.dir[0] * 0.35); if (p.pw && p.pw.type === 'dash') { c.globalAlpha = 0.35; c.save(); c.translate(-p.dir[0] * 22, -p.dir[1] * 22); drawBot(c, build, { t: p.anim, noShadow: true }); c.restore(); c.globalAlpha = 1; } drawBot(c, build, { t: p.anim, walk: p.walk, grab: Math.max(0, p.grab) / 0.35, glow: true, look: p.look, seed: 0, acc: save.acc }); }
+    if (e === p) { if (p.pw && p.pw.type === 'slide') c.rotate(p.dir[0] * 0.35); if (p.pw && p.pw.type === 'dash') { c.globalAlpha = 0.35; c.save(); c.translate(-p.dir[0] * 22, -p.dir[1] * 22); drawBot(c, build, { t: p.anim, noShadow: true }); c.restore(); c.globalAlpha = 1; } drawBot(c, build, { t: p.anim, walk: p.walk, grab: Math.max(0, p.grab) / 0.35, glow: true, look: p.look, seed: 0, acc: save.acc, worn: save.worn }); }
     else { if (e.state === 'caught') { c.translate(0, -Math.sin((0.7 - e.caughtT) / 0.7 * Math.PI) * 18); c.rotate(Math.sin(e.anim * 30) * 0.15); } drawKid(c, e); }
     c.restore();
   }
@@ -1373,7 +1402,28 @@ function renderGame(t) {
     }
   }
   drawHUD(c, t);
+  if (mode === 'game') drawSnap(c);
 }
+function drawSnap(c) {
+  if (!G.snap) return;
+  // instant-camera photo of the catch
+  {
+    const a = G.snap.t / 0.6, fade = a < 0.6 ? 1 : 1 - (a - 0.6) / 0.4;
+    c.globalAlpha = fade * 0.6; c.fillStyle = '#000'; c.fillRect(0, 0, SW, SH); c.globalAlpha = fade;
+    const PW = SH * 0.6, PH = SH * 0.72, s = SH / 108 * (1.1 - a * 0.1), hy = -(LEGLEN[build.legs] + 28 + 12);
+    c.save(); c.translate(SW / 2, SH * 0.48); c.rotate(-0.06 + a * 0.03);
+    rrp(c, -PW / 2, -PH / 2, PW, PH, 6); c.fillStyle = '#fafafa'; c.fill();
+    const ix = -PW / 2 + 10, iy = -PH / 2 + 10, iw = PW - 20, ih = PH - 58;
+    c.fillStyle = '#1a1020'; c.fillRect(ix, iy, iw, ih);
+    c.save(); c.beginPath(); c.rect(ix, iy, iw, ih); c.clip(); c.translate(0, iy + ih * 0.42 - hy * s); c.scale(s, s);
+    drawBot(c, build, { t: 0, grab: 1, glow: true, acc: save.acc, worn: save.worn, noShadow: true }); c.restore();
+    c.fillStyle = '#d32f2f'; c.font = '900 ' + Math.round(PH * 0.08) + 'px Trebuchet MS, sans-serif'; c.textAlign = 'center'; c.fillText('BUSTED!', 0, PH / 2 - 16);
+    c.restore();
+    if (a < 0.12) { c.globalAlpha = 1 - a / 0.12; c.fillStyle = '#fff'; c.fillRect(0, 0, SW, SH); }
+    c.globalAlpha = 1;
+  }
+}
+
 function drawHUD(c, t) {
   const p = G.p, st = G.st;
   const L = 12, T = 10;
@@ -1411,6 +1461,7 @@ function drawHUD(c, t) {
   } else if (G.t < 12 && G.night === 1) {
     c.globalAlpha = 0.25 + 0.15 * Math.sin(t * 3); circ(c, 110, SH - 100, 55, '#fff'); c.globalAlpha = 1; txt('DRAG TO MOVE', 110, SH - 96, 12, '#fff', 'center');
   }
+  staticFX(c, (G.intro > 0 ? Math.min(0.35, G.intro * 0.15) : 0) + (G.flick > 0 ? 0.25 : 0) + (G.outage > 6.3 ? 0.5 : 0), SW, SH);
   // toast
   if (G.toasts.length) { const ts = G.toasts[0]; const a = Math.min(1, ts.t * 4, (ts.dur - ts.t) * 4); c.globalAlpha = a; txt(ts.text, SW / 2, 84, 16, ts.col, 'center'); c.globalAlpha = 1; }
   // intro card
@@ -1422,6 +1473,12 @@ function drawHUD(c, t) {
   if (G.over && G.result) { c.globalAlpha = 0.9; txt(G.result.win ? 'ALL CAUGHT!' : (G.mess >= 100 ? 'TOO MESSY!' : '6 AM!'), SW / 2, SH / 2, 40, G.result.win ? '#69f0ae' : '#ff5252', 'center'); c.globalAlpha = 1; }
 }
 
+function staticFX(c, amt, W, H) {
+  if (amt <= 0) return; c.save(); c.globalAlpha = Math.min(1, amt);
+  for (let i = 0; i < 26; i++) { c.fillStyle = Math.random() < 0.5 ? '#fff' : '#888'; c.fillRect(0, Math.random() * H, W, Math.random() * 2 + 0.5); }
+  c.globalAlpha = Math.min(0.5, amt * 0.5); c.fillStyle = '#000'; for (let y = 0; y < H; y += 3) c.fillRect(0, y, W, 1);
+  c.restore();
+}
 /* ----- menu backgrounds ----- */
 function stageBG(c, t) {
   const W = SW, H = SH;
@@ -1444,18 +1501,19 @@ function renderMenu(t) {
       const x = SW / 2 + (i - (n - 1) / 2) * gap, y = SH * 0.93;
       spot(c, x, y, 60 * s, 0.25);
       c.save(); c.translate(x, y); c.scale(s, s); const sp = ORDER[i];
-      drawBot(c, { head: sp, body: sp, arms: sp, legs: sp }, { t: t + i * 0.7, glow: true, look: Math.sin(t * 0.7 + i) * 0.8, seed: i * 1.3 });
+      drawBot(c, { head: sp, body: sp, arms: sp, legs: sp }, { t: t + i * 0.7, glow: true, worn: save.worn, look: Math.sin(t * 0.7 + i) * 0.8, seed: i * 1.3 });
       c.restore();
     }
   } else {
     const s = clamp(SH / 125, 1, 5), x = Math.min(SW * 0.22, SW * 0.44 - 40), y = SH * 0.9;
     spot(c, x, y, 90 * s * 0.6, 0.35);
     c.save(); c.translate(x, y); c.scale(s, s);
-    drawBot(c, build, { t, glow: true, look: Math.sin(t * 0.8) * 0.8, acc: ACCS[accView].id });
+    drawBot(c, build, { t, glow: true, look: Math.sin(t * 0.8) * 0.8, acc: ACCS[accView].id, worn: save.worn });
     c.restore();
     if (mode === 'nights' || mode === 'result') { c.fillStyle = 'rgba(11,7,16,.55)'; c.fillRect(0, 0, SW, SH); }
   }
   if (flick) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(0, 0, SW, SH); }
+  if (mode === 'title' || mode === 'how') staticFX(c, flick ? 0.5 : 0.07, SW, SH);
 }
 
 /* ================= input ================= */
@@ -1529,7 +1587,7 @@ window.__drawIcon = (canvas) => {
   const g = c.createRadialGradient(S / 2, S * 0.4, 0, S / 2, S / 2, S * 0.7); g.addColorStop(0, '#5e2a7a'); g.addColorStop(1, '#140a1e');
   c.fillStyle = g; c.fillRect(0, 0, S, S);
   c.save(); c.translate(S / 2, S * 1.5); c.scale(S / 64, S / 64);
-  drawBot(c, { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, { t: 1, glow: true, noShadow: true });
+  drawBot(c, { head: 'gator', body: 'penguin', arms: 'raccoon', legs: 'moose' }, { t: 1, glow: true, noShadow: true, worn: true });
   c.restore();
 };
 </script>

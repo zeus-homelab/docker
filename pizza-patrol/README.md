@@ -24,6 +24,8 @@ Requires Android 7.0 or newer. The game plays in landscape.
 - **Naughty kid types:** Skaters (fast) and Sneaky kids (hoodies, hide in the ball pit, invisible in the dark).
 - **Themed nights:** 1 Opening Night, 2 Lights Out (power outages), 3 The Night Guard (freeze when his flashlight
   hits you, or he catches you moving), 4 Sugar Rush (everyone is fast), 5 The Prankster King (boss you must catch 3 times).
+- **Worn animatronic look** (toggle in the builder): grubby fur, exposed metal joints, torn chest wires, cracked faces,
+  black eyes with glowing pupils at night, security-camera static, and an instant-camera "BUSTED!" photo on every catch.
 - **Tickets & prize shop:** earn tickets each night and buy accessories for your bot: shades, chef hat, headphones, propeller cap, crown.
 
 ## Project layout
