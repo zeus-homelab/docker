@@ -1,9 +1,9 @@
-# Midnight Pizza Patrol (Android)
+# Zane's Nightmare Pizza Shop (Android)
 
-A night-shift arcade game for Android phones. You play as an animatronic mascot at **Chompy's Pizza Palace**
+A night-shift arcade game for Android phones. You play as an animatronic mascot at **Zane's Nightmare Pizza Shop**
 and chase down the naughty kids who are trashing the place after hours.
 
-**Install:** copy `dist/PizzaPatrol.apk` to your phone, open it, and allow "install unknown apps" when asked.
+**Install:** copy `dist/ZanesNightmarePizzaShop.apk` to your phone, open it, and allow "install unknown apps" when asked.
 Requires Android 7.0 or newer. The game plays in landscape.
 
 ## Gameplay

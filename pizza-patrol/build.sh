@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds dist/PizzaPatrol.apk without the Android SDK, using only artifacts from Maven Central:
+# Builds dist/ZanesNightmarePizzaShop.apk without the Android SDK, using only artifacts from Maven Central:
 #   aapt2 + framework resources (bundled in apktool-lib), dalvik-dx (dexer), apksig (signer),
 #   and the android API stub jar for javac. Needs: JDK 11+, curl, unzip, zip.
 set -euo pipefail
@@ -41,5 +41,5 @@ if [ ! -f "$KS" ]; then
 fi
 javac --release 8 -nowarn -cp "$TOOLS/apksig.jar" -d "$OUT/signer" tools/Sign.java
 java --add-exports java.base/sun.security.x509=ALL-UNNAMED \
-  --add-exports java.base/sun.security.util=ALL-UNNAMED -cp "$TOOLS/apksig.jar:$OUT/signer" Sign "$KS" "$PASS" pizzapatrol "$OUT/aligned.apk" "$DIST/PizzaPatrol.apk"
-echo "Built $DIST/PizzaPatrol.apk ($(du -h "$DIST/PizzaPatrol.apk" | cut -f1))"
+  --add-exports java.base/sun.security.util=ALL-UNNAMED -cp "$TOOLS/apksig.jar:$OUT/signer" Sign "$KS" "$PASS" pizzapatrol "$OUT/aligned.apk" "$DIST/ZanesNightmarePizzaShop.apk"
+echo "Built $DIST/ZanesNightmarePizzaShop.apk ($(du -h "$DIST/ZanesNightmarePizzaShop.apk" | cut -f1))"

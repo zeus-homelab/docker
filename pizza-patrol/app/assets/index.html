@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Midnight Pizza Patrol</title>
+<title>Zane's Nightmare Pizza Shop</title>
 <style>
   html,body{margin:0;height:100%;background:#0b0710;overflow:hidden;color:#fff;
     font-family:"Trebuchet MS",Verdana,system-ui,sans-serif;user-select:none;-webkit-user-select:none;
@@ -24,7 +24,7 @@
 
   /* title */
   #title{flex-direction:column;align-items:center;padding-top:4vh}
-  #title h1{font-size:min(9vw,64px);letter-spacing:3px;color:#ffe066;line-height:1;text-align:center}
+  #title h1{font-size:min(7.6vw,58px);letter-spacing:3px;color:#ffe066;line-height:1;text-align:center}
   #title .sub{margin-top:6px;font-size:min(3.4vw,18px);color:#ffb3d1;letter-spacing:2px;text-transform:uppercase}
   #title .row{display:flex;gap:12px;margin-top:2.5vh}
 
@@ -94,8 +94,8 @@
 <canvas id="cv"></canvas>
 
 <div id="title" class="screen">
-  <h1 class="glow">MIDNIGHT<br>PIZZA PATROL</h1>
-  <div class="sub">Chompy's Pizza Palace &middot; Night Shift</div>
+  <h1 class="glow">ZANE'S NIGHTMARE<br>PIZZA SHOP</h1>
+  <div class="sub">Open after dark &middot; Night Shift</div>
   <div class="row">
     <button class="btn" id="bPlay">&#9654; Play</button>
     <button class="btn alt" id="bHow">How to play</button>
@@ -106,7 +106,7 @@
 <div id="how" class="screen center">
   <div class="panel">
     <h2 style="color:#ffe066">How to Play</h2>
-    <p>You are an animatronic mascot on the night shift at <b>Chompy's Pizza Palace</b>. Some kids are being
+    <p>You are an animatronic mascot on the night shift at <b>Zane's Nightmare Pizza Shop</b>. Some kids are being
       <span class="tag" style="background:#d63031">NAUGHTY</span> (red caps): spilling soda, scribbling on walls and throwing pizza!</p>
     <ul>
       <li><b>Move:</b> drag your thumb anywhere on the left side of the screen.</li>
@@ -1289,7 +1289,7 @@ function update(dt) {
   // mess / time
   G.mess = clamp(G.mess, 0, 100);
   if (G.mess > 75 && !G.over) { G.alarmT -= dt; if (G.alarmT <= 0) { G.alarmT = 2.5; Snd.alarm(); } }
-  if (!G.over && G.mess >= 100) endNight(false, 'The manager walked in and saw the MESS!<br>Chompy\'s is closed for cleaning.');
+  if (!G.over && G.mess >= 100) endNight(false, 'The manager walked in and saw the MESS!<br>Zane\'s is closed for cleaning.');
   if (!G.over && G.t >= G.nightLen) endNight(false, 'It\'s 6 AM! The naughty kids got away.');
   // the clock tower: bells toll on the hour
   { const hr = Math.min(6, Math.floor(G.t / (G.nightLen / 6))); if (hr !== G.lastHr) { G.lastHr = hr; if (hr > 0 && hr < 6 && !G.over) { Snd.bells(hr); toast(HOURS[hr] + '...', 1.5, '#b3e5fc'); } } }
