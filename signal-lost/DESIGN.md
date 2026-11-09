@@ -268,7 +268,10 @@ purple tags on the HUD.
 
 ## 11. Screens & Flow
 
-1. **Boot**: a sterile white Halcyon Dynamics splash glitches out into SIGNAL LOST (tap to skip).
+1. **Boot (studio splash)**: **LAZY WIZARD GAMES** · *"Magic, eventually."*. A neon purple crystal ball on a stand
+   (the stand sits below the orb with a gap, and the shine, mist rings and sparkles never overlap the orb, the text or each other).
+   The ball's prophecy changes: "brb" → "loading..." → "nah" → "brb" (~3.7 s, with a chime), then a glitch into SIGNAL LOST.
+   Tap to skip.
 2. **Title**: synthwave sun and grid, drifting enemy silhouettes, glitch logo, Fragment count. Buttons: CONTINUE (if a run
    is saved) · NEW RUN (confirms if it would overwrite a save) · DAILY BREACH · UPGRADE LAB · CODEX · SETTINGS · CREDITS.
 3. **Run Setup** ("CHOOSE YOUR NULL"): variant cards (locked ones show their price), a Clearance −/+ control once unlocked, BREACH.
@@ -376,3 +379,6 @@ purchase. The run is saved every time you see the map. Quitting during a room me
   talks, and G.R.E.G. is a **floating necktie** (his hosts wear it too). The app icon was redrawn as the spinner. The G.R.E.G.
   boss tip now says to shoot his tie. Concept sheets are in `docs/`. The studio splash and the company name (still "Halcyon")
   are waiting on picks. The service worker is now v1.2.0.
+- **2026-11-09 (v1.3)**: The studio is now **Lazy Wizard Games**. The Halcyon corporate splash was replaced with the
+  crystal-ball "brb" splash (concept A, `docs/splash-final.png`). The in-game company name is still "Halcyon" until a
+  replacement is picked. The service worker is now v1.3.0.

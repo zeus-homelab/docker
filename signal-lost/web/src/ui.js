@@ -250,54 +250,122 @@ export function drawGreg(ctx, x, y, s, t) {
 // ---------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------
+// Lazy Wizard Games splash: a crystal ball that mostly says "brb".
+export function drawCrystalBall(ctx, cx, cy, r, t, word = 'brb', alpha = 1) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  // stand (sits below the orb with a clear gap; never touches it)
+  const sy = cy + r + 8;
+  ctx.beginPath();
+  ctx.moveTo(cx - r * 0.42, sy);
+  ctx.lineTo(cx + r * 0.42, sy);
+  ctx.lineTo(cx + r * 0.62, sy + r * 0.32);
+  ctx.lineTo(cx - r * 0.62, sy + r * 0.32);
+  ctx.closePath();
+  ctx.save();
+  ctx.globalAlpha *= 0.18;
+  ctx.fillStyle = COLORS.purple;
+  ctx.fill();
+  ctx.restore();
+  glowStroke(ctx, COLORS.purple, 2.5, 8);
+  // orb
+  const grd = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.05, cx, cy, r);
+  grd.addColorStop(0, 'rgba(190,150,255,0.55)');
+  grd.addColorStop(0.6, 'rgba(120,70,220,0.22)');
+  grd.addColorStop(1, 'rgba(90,40,180,0.08)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, TAU);
+  ctx.fillStyle = grd;
+  ctx.fill();
+  glowStroke(ctx, COLORS.purple, 3, 12);
+  // swirling mist, clipped inside the orb
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 6, 0, TAU);
+  ctx.clip();
+  ctx.globalAlpha *= 0.25;
+  ctx.strokeStyle = COLORS.enemy2;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + r * 0.52 + Math.sin(t * 1.5) * 2, r * (0.55 - i * 0.16) * (1 + Math.sin(t * 1.2 + i) * 0.04), r * (0.12 - i * 0.035), 0, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // shine: a short arc well inside the rim
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.72, Math.PI * 1.12, Math.PI * 1.38);
+  ctx.strokeStyle = COLORS.white;
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.globalAlpha = alpha;
+  // the prophecy (auto-sized to fit inside the orb)
+  let size = r * 0.42;
+  ctx.font = `bold ${size}px ${FONT}`;
+  const maxW = r * 1.4;
+  const w = ctx.measureText(word).width;
+  if (w > maxW) size *= maxW / w;
+  text(ctx, word, cx, cy + r * 0.05, { size, color: COLORS.white, weight: 'bold', alpha });
+  // sparkles orbiting OUTSIDE the orb (gap of at least 18px)
+  const spots = [-2.55, -0.6, 0.2]; // upper-left, upper-right, right: never near the stand
+  for (let i = 0; i < 3; i++) {
+    const a = spots[i] + Math.sin(t * 0.9 + i) * 0.12;
+    const d = r + 30 + Math.sin(t * 2 + i) * 3;
+    const sx = cx + Math.cos(a) * d;
+    const sy2 = cy + Math.sin(a) * d;
+    const sr = 6 + i * 2 + Math.sin(t * 5 + i) * 1.5;
+    poly(ctx, sx, sy2, sr, 4, 0, 0.3);
+    ctx.fillStyle = COLORS.gold;
+    ctx.globalAlpha = alpha * (0.6 + 0.4 * Math.sin(t * 4 + i * 2));
+    ctx.fill();
+    ctx.globalAlpha = alpha;
+  }
+  ctx.restore();
+}
+
 export class BootScene extends MenuScene {
   constructor(app) {
     super(app);
   }
   update(dt, events) {
     super.update(dt, events);
-    if (events.some((e) => e.type === 'tap' || e.type === 'key') || this.t > 3.6) this.app.replace(new TitleScene(this.app));
+    if (events.some((e) => e.type === 'tap' || e.type === 'key') || this.t > 4.6) this.app.replace(new TitleScene(this.app));
   }
   draw(ctx) {
     const { W, H } = this;
-    ctx.fillStyle = '#f2f4f8';
-    ctx.fillRect(0, 0, W, H);
     const k = this.t;
-    if (k < 2.4) {
-      // sterile corporate splash
-      const a = clamp(k * 2, 0, 1);
-      ctx.save();
-      ctx.globalAlpha = a;
-      ctx.beginPath();
-      ctx.arc(W / 2, H * 0.42, 40, 0, TAU);
-      ctx.strokeStyle = '#3a6df0';
-      ctx.lineWidth = 6;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(W / 2 - 50, H * 0.42 + 10);
-      ctx.quadraticCurveTo(W / 2, H * 0.42 - 40, W / 2 + 50, H * 0.42 + 10);
-      ctx.stroke();
-      ctx.restore();
-      text(ctx, 'HALCYON DYNAMICS', W / 2, H * 0.42 + 80, { size: 26, color: '#223', alpha: a, weight: 'bold' });
-      text(ctx, 'Innovating Tomorrow\'s Yesterday™', W / 2, H * 0.42 + 110, { size: 14, color: '#667', alpha: a });
-      if (k > 1.6) {
-        // glitch creeping in
-        for (let i = 0; i < 8; i++) {
-          ctx.fillStyle = R() < 0.5 ? COLORS.enemy : COLORS.player;
-          ctx.globalAlpha = (k - 1.6) * 0.8;
-          ctx.fillRect(0, R() * H, W, R() * 10);
-        }
-        ctx.globalAlpha = 1;
-        if (!this.glitched) {
-          this.glitched = true;
-          audio.sfx('glitch');
-        }
+    ctx.fillStyle = '#08060f';
+    ctx.fillRect(0, 0, W, H);
+    if (k < 3.7) {
+      const a = clamp(k * 1.6, 0, 1) * clamp((3.7 - k) * 3, 0, 1);
+      // the ball has opinions: brb -> loading... -> nah -> brb
+      const word = k < 1.1 ? 'brb' : k < 2.0 ? 'loading' + '.'.repeat(1 + (Math.floor(k * 4) % 3)) : k < 2.6 ? 'nah' : 'brb';
+      const cy = H * 0.36;
+      drawCrystalBall(ctx, W / 2, cy, 76, this.t, word, a);
+      const ty = cy + 76 + 8 + 76 * 0.32 + 70; // below the stand, no overlap
+      text(ctx, 'LAZY WIZARD', W / 2, ty, { size: 40, color: COLORS.purple, weight: 'bold', glow: true, alpha: a });
+      text(ctx, 'G  A  M  E  S', W / 2, ty + 44, { size: 20, color: COLORS.white, weight: 'bold', alpha: a });
+      text(ctx, '"Magic, eventually."', W / 2, ty + 92, { size: 17, color: COLORS.gold, alpha: a });
+      if (!this.chimed && k > 0.3) {
+        this.chimed = true;
+        audio.sfx('reward');
       }
     } else {
       ctx.fillStyle = COLORS.bg;
       ctx.fillRect(0, 0, W, H);
+      if (!this.glitched) {
+        this.glitched = true;
+        audio.sfx('glitch');
+      }
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = R() < 0.5 ? COLORS.enemy : COLORS.player;
+        ctx.globalAlpha = clamp((4.2 - k) * 0.8, 0, 0.6);
+        ctx.fillRect(0, R() * H, W, R() * 8);
+      }
+      ctx.globalAlpha = 1;
       glitchText(ctx, 'SIGNAL LOST', W / 2, H * 0.45, 48, 2, this.t);
-      text(ctx, 'tap to continue', W / 2, H * 0.6, { size: 14, color: COLORS.dim, alpha: Math.floor(this.t * 2) % 2 ? 1 : 0.4 });
     }
   }
 }
