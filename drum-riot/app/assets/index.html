@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Drum Riot</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="ui">
+
+  <section id="scr-splash" class="scr on">
+    <div class="logo"><span class="l1">DRUM</span><span class="l2">RIOT</span></div>
+    <div class="tap">TAP TO START</div>
+  </section>
+
+  <section id="scr-title" class="scr">
+    <div class="logo small"><span class="l1">DRUM</span><span class="l2">RIOT</span></div>
+    <div class="menu">
+      <button class="big" id="b-play"><span>▶</span> PLAY SONGS</button>
+      <button class="big alt" id="b-free"><span>🥁</span> FREE PLAY</button>
+      <button class="big ghost" id="b-settings"><span>⚙</span> SETTINGS</button>
+    </div>
+  </section>
+
+  <section id="scr-songs" class="scr">
+    <div class="topbar">
+      <button class="back" data-back="title">‹ BACK</button>
+      <h2>PICK A SONG</h2>
+      <div></div>
+    </div>
+    <div class="songwrap">
+      <div id="song-list"></div>
+      <div id="song-detail">
+        <div class="genre" id="sd-genre"></div>
+        <div class="stitle" id="sd-title"></div>
+        <div class="sartist" id="sd-artist"></div>
+        <div class="meta" id="sd-meta"></div>
+        <div class="diffs" id="diffs">
+          <button data-d="0">EASY</button><button data-d="1">MEDIUM</button><button data-d="2">HARD</button>
+        </div>
+        <div class="best" id="sd-best"></div>
+        <button class="big go" id="b-go">ROCK IT! ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-game" class="scr hud">
+    <button class="hudbtn" id="b-pause">❚❚</button>
+    <button id="b-rage">RAGE<small>MODE</small></button>
+  </section>
+
+  <section id="scr-pause" class="scr overlay">
+    <div class="panel">
+      <h1>PAUSED</h1>
+      <button class="big" id="b-resume">RESUME</button>
+      <button class="big alt" id="b-restart">RESTART</button>
+      <button class="big ghost" id="b-quit">QUIT</button>
+    </div>
+  </section>
+
+  <section id="scr-results" class="scr overlay">
+    <div class="panel wide">
+      <div class="r-head" id="r-head">SONG COMPLETE!</div>
+      <div class="r-song" id="r-song"></div>
+      <div class="r-main">
+        <div class="r-grade" id="r-grade">A</div>
+        <div class="r-stats">
+          <div class="r-score" id="r-score">0</div>
+          <div class="r-stars" id="r-stars"></div>
+          <div class="r-new" id="r-new">NEW HIGH SCORE!</div>
+          <div class="r-grid" id="r-grid"></div>
+        </div>
+      </div>
+      <div class="r-btns">
+        <button class="big alt" id="b-again">PLAY AGAIN</button>
+        <button class="big" id="b-next">SONGS</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-free" class="scr hud">
+    <div class="freebar">
+      <button class="back" id="b-free-back">‹</button>
+      <button class="chip" id="b-jam">JAM: OFF</button>
+      <div class="bpm"><button class="chip sq" id="b-bpm-">−</button><span id="bpm-v">100</span><small>BPM</small><button class="chip sq" id="b-bpm+">+</button></div>
+      <button class="chip" id="b-metro">CLICK</button>
+      <button class="chip rec" id="b-rec">● REC</button>
+      <button class="chip" id="b-clear">CLEAR</button>
+    </div>
+  </section>
+
+  <section id="scr-settings" class="scr">
+    <div class="topbar">
+      <button class="back" data-back="title">‹ BACK</button>
+      <h2>SETTINGS</h2>
+      <div></div>
+    </div>
+    <div class="settings">
+      <label>Music Volume <input type="range" id="s-music" min="0" max="1.2" step="0.05"><b id="v-music"></b></label>
+      <label>Drum Volume <input type="range" id="s-drums" min="0" max="1.5" step="0.05"><b id="v-drums"></b></label>
+      <label>Note Speed <input type="range" id="s-speed" min="0.6" max="2" step="0.1"><b id="v-speed"></b></label>
+      <label>Timing Offset <input type="range" id="s-offset" min="-200" max="250" step="5"><b id="v-offset"></b></label>
+      <p class="hint">Hits register late? Raise Timing Offset. Early? Lower it.</p>
+      <label class="tog">Auto Kick (computer plays the kick drum) <input type="checkbox" id="s-autoKick"></label>
+      <label class="tog">Vibration on hits <input type="checkbox" id="s-vibe"></label>
+      <label class="tog">Battery saver graphics <input type="checkbox" id="s-low"></label>
+    </div>
+  </section>
+
+</div>
+<script src="audio.js"></script>
+<script src="songs.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
