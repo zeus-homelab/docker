@@ -833,6 +833,15 @@ function drawNodeIcon(ctx, type, x, y, r, col, t) {
   ctx.restore();
 }
 
+const NODE_DESC = {
+  combat: 'Fight 2-3 waves. 50% chance of an exploit, otherwise some Bits.',
+  elite: 'One tough Elite plus escorts. Guaranteed exploit.',
+  vault: 'Crack a safe with a specific host in 35s. Big loot.',
+  shop: 'Black Market: exploits, Core repair, Trace scrub.',
+  cooldown: 'Idle Process: heal a pip, clear Trace, or mine Bits.',
+  event: 'Corrupted Sector: a weird choice. Risky. Probably funny.',
+};
+
 export class MapScene extends MenuScene {
   constructor(app, run, intro = false) {
     super(app);
@@ -843,23 +852,50 @@ export class MapScene extends MenuScene {
     audio.setTrace(0);
     audio.siren = false;
     saveRun(run);
+    this.sel = null;
+    this.build();
+  }
+  build() {
+    const app = this.app;
+    const run = this.run;
+    if (!run) return;
     this.buttons = [
       new Btn(this.W - 128, this.H - 64, 112, 46, 'MENU', () => app.push(new MapMenuScene(app, run)), { size: 15, color: COLORS.dim }),
       new Btn(16, this.H - 64, this.W - 160, 46, `LOADOUT (${Object.keys(run.exploits).length + run.glitches.length})`, () => {
         this.showList = !this.showList;
       }, { size: 15, color: COLORS.gold }),
     ];
+    const nd = this.sel !== null ? findNode(run.map, this.sel) : null;
+    if (nd && availableNodes(run).includes(nd.id)) {
+      this.buttons.push(new Btn(this.W - 136, this.H - 142, 120, 58, 'ENTER ▸', () => this.go(nd), { primary: true, color: NODE_COLORS[nd.type], size: 17 }));
+    }
+  }
+  go(nd) {
+    audio.sfx('select');
+    this.app.enterNode(this.run, nd);
+  }
+  reachable(fromId) {
+    const set = new Set([fromId]);
+    const stack = [fromId];
+    while (stack.length) {
+      const nd = findNode(this.run.map, stack.pop());
+      for (const id of nd.next) if (!set.has(id)) {
+        set.add(id);
+        stack.push(id);
+      }
+    }
+    return set;
   }
   resume() {
     audio.playMusic('map');
     saveRun(this.run);
   }
   nodePos(nd) {
-    const top = 150;
-    const bottom = this.H - 175;
+    const top = 140;
+    const bottom = this.H - 208;
     const rows = this.run.map.rows.length;
     const gap = (bottom - top) / (rows - 1);
-    const x = (this.W * (nd.col + 1)) / (nd.n + 1) + nd.jx;
+    const x = this.run.map.grid ? 48 + ((this.W - 96) * nd.gx) / 6 + nd.jx : (this.W * (nd.col + 1)) / (nd.n + 1) + nd.jx;
     const y = bottom - nd.row * gap + nd.jy;
     return { x, y };
   }
@@ -872,16 +908,28 @@ export class MapScene extends MenuScene {
       if (e.y < this.H - 70) this.showList = false;
       return;
     }
+    if (this.buttons.some((b) => b.hit(e.x, e.y))) return;
     const avail = availableNodes(this.run);
-    for (const id of avail) {
-      const nd = findNode(this.run.map, id);
+    // nearest node within reach of the finger (avail nodes win ties)
+    let best = null;
+    let bd = 32 * 32;
+    for (const nd of this.run.map.rows.flat()) {
       const p = this.nodePos(nd);
-      if ((e.x - p.x) ** 2 + (e.y - p.y) ** 2 < 34 * 34) {
-        audio.sfx('select');
-        this.app.enterNode(this.run, nd);
-        return;
+      const d = (e.x - p.x) ** 2 + (e.y - p.y) ** 2 - (avail.includes(nd.id) ? 200 : 0);
+      if (d < bd) {
+        bd = d;
+        best = nd;
       }
     }
+    if (!best) {
+      this.sel = null;
+      this.build();
+      return;
+    }
+    if (this.sel === best.id && avail.includes(best.id)) return this.go(best);
+    this.sel = best.id;
+    audio.sfx('click');
+    this.build();
   }
   update(dt, events) {
     if (this.introT > 0) this.introT -= dt;
@@ -922,20 +970,23 @@ export class MapScene extends MenuScene {
     // edges
     const avail = new Set(availableNodes(run));
     const visited = new Set(run.visited);
+    const route = this.sel !== null ? this.reachable(this.sel) : null;
     ctx.save();
     for (const row of run.map.rows) {
       for (const nd of row) {
         const a = this.nodePos(nd);
         for (const nid of nd.next) {
           const b = this.nodePos(findNode(run.map, nid));
-          const active = (nd.id === run.pos && avail.has(nid)) || (visited.has(nd.id) && visited.has(nid));
+          const walked = visited.has(nd.id) && visited.has(nid);
+          const next = nd.id === run.pos && avail.has(nid);
+          const planned = route && route.has(nd.id) && route.has(nid);
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.setLineDash(active ? [] : [4, 6]);
-          ctx.strokeStyle = active ? L.color : '#2a3a5a';
-          ctx.globalAlpha = active ? 0.9 : 0.6;
-          ctx.lineWidth = active ? 2.5 : 1.5;
+          ctx.setLineDash(walked || next || planned ? [] : [4, 6]);
+          ctx.strokeStyle = planned ? COLORS.white : walked || next ? L.color : '#2a3a5a';
+          ctx.globalAlpha = planned ? 0.75 : walked || next ? 0.9 : 0.55;
+          ctx.lineWidth = planned || walked || next ? 2.5 : 1.5;
           ctx.stroke();
         }
       }
@@ -949,25 +1000,26 @@ export class MapScene extends MenuScene {
         const isVisited = visited.has(nd.id);
         const isCur = nd.id === run.pos;
         const col = NODE_COLORS[nd.type];
-        const r = nd.type === 'boss' ? 30 : 22;
+        const r = nd.type === 'boss' ? 30 : 18;
+        const inRoute = route && route.has(nd.id);
         ctx.save();
-        if (!isAvail && !isVisited) ctx.globalAlpha = 0.45;
+        if (!isAvail && !isVisited) ctx.globalAlpha = inRoute ? 0.9 : 0.45;
         if (isVisited && !isCur) ctx.globalAlpha = 0.35;
+        if (nd.id === this.sel) {
+          glowCircle(ctx, p.x, p.y, r + 9, COLORS.white, 2, 0);
+        }
         ctx.beginPath();
         ctx.arc(p.x, p.y, r + (isAvail ? Math.sin(this.t * 5) * 3 : 0), 0, TAU);
         ctx.fillStyle = '#080c18';
         ctx.fill();
         glowStroke(ctx, isAvail ? col : isCur ? COLORS.white : '#3a4a6a', isAvail ? 2.5 : 1.5, isAvail ? 8 : 2);
-        drawNodeIcon(ctx, nd.type, p.x, p.y, r, isAvail || isCur ? col : COLORS.dim, this.t);
+        drawNodeIcon(ctx, nd.type, p.x, p.y, r, isAvail || isCur || inRoute ? col : COLORS.dim, this.t);
         ctx.restore();
-        if (isAvail) text(ctx, nd.type === 'boss' ? BOSSES[L.boss].name : roomLabel(nd.type), p.x, p.y + r + 14, { size: 11, color: col, weight: 'bold' });
+        if (isAvail || nd.type === 'boss') text(ctx, nd.type === 'boss' ? BOSSES[L.boss].name : roomLabel(nd.type), p.x, p.y + r + 12, { size: nd.type === 'boss' ? 12 : 10, color: col, weight: 'bold' });
         if (isCur) drawNull(ctx, p.x, p.y - r - 16, 7, this.t);
       }
     }
-    if (run.pos === null) {
-      drawNull(ctx, W / 2, H - 128, 8, this.t);
-    }
-    text(ctx, 'Tap a glowing node', W / 2, H - 96, { size: 12, color: COLORS.dim, alpha: 0.8 });
+    this.drawInfo(ctx);
     this.drawButtons(ctx);
     if (this.showList) this.drawLoadout(ctx);
     if (this.introT > 0) {
@@ -981,6 +1033,26 @@ export class MapScene extends MenuScene {
       glitchText(ctx, L.name, W / 2, H * 0.4 + 44, 34, 1, this.t);
       text(ctx, L.sub, W / 2, H * 0.4 + 86, { size: 15, color: L.color, alpha: a });
     }
+  }
+  drawInfo(ctx) {
+    const { W, H } = this;
+    const run = this.run;
+    const y = H - 150;
+    const nd = this.sel !== null ? findNode(run.map, this.sel) : null;
+    const canGo = nd && availableNodes(run).includes(nd.id);
+    const w = canGo ? W - 168 : W - 32;
+    panel(ctx, 16, y - 8, w, 74, nd ? NODE_COLORS[nd.type] : '#24324a');
+    if (!nd) {
+      text(ctx, 'PLAN YOUR ROUTE', 30, y + 14, { size: 14, color: COLORS.white, align: 'left', weight: 'bold' });
+      text(ctx, 'Tap any node to see where it leads.', 30, y + 34, { size: 12, color: COLORS.dim, align: 'left' });
+      text(ctx, 'Tap a glowing node twice to enter it.', 30, y + 51, { size: 12, color: COLORS.dim, align: 'left' });
+      return;
+    }
+    const L = LAYERS[run.layer];
+    const title = nd.type === 'boss' ? BOSSES[L.boss].name : roomLabel(nd.type);
+    text(ctx, title + (canGo ? '' : `  · floor ${nd.row + 1}`), 30, y + 14, { size: 15, color: NODE_COLORS[nd.type], align: 'left', weight: 'bold' });
+    const desc = nd.type === 'boss' ? BOSSES[L.boss].title : NODE_DESC[nd.type];
+    wrap(ctx, desc, w - 30, 12).slice(0, 2).forEach((l, i) => text(ctx, l, 30, y + 35 + i * 16, { size: 12, color: COLORS.white, align: 'left', alpha: 0.85 }));
   }
   drawLoadout(ctx) {
     const { W, H } = this;

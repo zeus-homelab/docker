@@ -27,6 +27,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Install ImageMagick (icons and splash)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+
       - name: Install Capacitor
         run: npm install --no-audit --no-fund
 

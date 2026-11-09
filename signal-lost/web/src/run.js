@@ -50,12 +50,12 @@ export function runRng(run) {
 }
 
 const NODE_WEIGHTS = [
-  ['combat', 44],
+  ['combat', 46],
   ['elite', 12],
-  ['vault', 10],
-  ['shop', 12],
-  ['event', 16],
-  ['cooldown', 6],
+  ['vault', 4],
+  ['shop', 11],
+  ['event', 20],
+  ['cooldown', 7],
 ];
 
 function weightedPick(rng, list) {
@@ -68,57 +68,93 @@ function weightedPick(rng, list) {
   return list[0][0];
 }
 
+export const MAP_ROWS = 8; // floors before the boss
+export const MAP_COLS = 7; // lanes
+export const TREASURE_ROW = 4; // all vaults
+const NO_REPEAT = new Set(['elite', 'shop', 'cooldown', 'vault']);
+
+// Slay-the-Spire style: trace 6 random non-crossing paths up a 7x8 grid.
 export function genMap(run, layer) {
   const rng = runRng(run);
-  const ROWS = 6;
-  const rows = [];
-  let idc = 0;
-  for (let r = 0; r < ROWS; r++) {
-    const n = r === 0 ? rng.int(2, 3) : rng.int(2, 3);
-    const row = [];
-    for (let i = 0; i < n; i++) {
-      let type;
-      if (r === 0) type = 'combat';
-      else if (r === ROWS - 1) type = i === 0 ? 'cooldown' : rng.pick(['shop', 'cooldown', 'event']);
-      else {
-        let w = NODE_WEIGHTS;
-        if (r === 1) w = w.filter(([k]) => k !== 'elite' && k !== 'cooldown');
-        type = weightedPick(rng, w);
+  const ROWS = MAP_ROWS;
+  const COLS = MAP_COLS;
+  const cell = []; // cell[r][c] = node | undefined
+  for (let r = 0; r < ROWS; r++) cell.push([]);
+  const edges = new Set(); // "r,c>c2"
+  const crosses = (r, c, c2) => c2 !== c && edges.has(`${r},${c2}>${c}`);
+  let firstStart = -1;
+  for (let w = 0; w < 6; w++) {
+    let c = rng.int(0, COLS - 1);
+    // first two paths start on different columns so floor 0 always has a choice
+    if (w === 0) firstStart = c;
+    if (w === 1) while (c === firstStart) c = rng.int(0, COLS - 1);
+    for (let r = 0; r < ROWS; r++) {
+      if (!cell[r][c]) cell[r][c] = { row: r, gx: c, next: [] };
+      if (r === ROWS - 1) break;
+      let c2 = c;
+      for (let tries = 0; tries < 8; tries++) {
+        c2 = Math.max(0, Math.min(COLS - 1, c + rng.int(-1, 1)));
+        if (!crosses(r, c, c2)) break;
+        c2 = c;
       }
-      row.push({ id: idc++, row: r, col: i, n, type, next: [], jx: rng.range(-18, 18), jy: rng.range(-10, 10) });
+      edges.add(`${r},${c}>${c2}`);
+      c = c2;
+    }
+  }
+  // build node list
+  let idc = 0;
+  const rows = [];
+  for (let r = 0; r < ROWS; r++) {
+    const row = [];
+    for (let c = 0; c < COLS; c++) {
+      const nd = cell[r][c];
+      if (!nd) continue;
+      Object.assign(nd, { id: idc++, col: c, n: COLS, type: null, jx: rng.range(-12, 12), jy: rng.range(-8, 8) });
+      row.push(nd);
     }
     rows.push(row);
   }
-  // ensure a shop exists in rows 2..4
-  if (!rows.slice(1, ROWS - 1).some((row) => row.some((nd) => nd.type === 'shop'))) {
-    const row = rows[rng.int(2, 4)];
-    row[rng.int(0, row.length - 1)].type = 'shop';
+  for (const e of edges) {
+    const [rc, c2] = e.split('>');
+    const [r, c] = rc.split(',').map(Number);
+    const a = cell[r][c];
+    const b = cell[r + 1][+c2];
+    if (!a.next.includes(b.id)) a.next.push(b.id);
   }
-  // no row of all-elite
-  // boss row
-  rows.push([{ id: idc++, row: ROWS, col: 0, n: 1, type: 'boss', next: [], jx: 0, jy: 0 }]);
-  // edges
-  for (let r = 0; r < rows.length - 1; r++) {
-    const a = rows[r];
-    const b = rows[r + 1];
-    for (const nd of a) {
-      const pos = a.length === 1 ? 0.5 : nd.col / (a.length - 1);
-      const target = Math.round(pos * (b.length - 1));
-      nd.next.push(b[target].id);
-      if (b.length > 1 && rng.chance(0.55)) {
-        const alt = target + (rng.chance(0.5) ? 1 : -1);
-        if (alt >= 0 && alt < b.length && !nd.next.includes(b[alt].id)) nd.next.push(b[alt].id);
+  // parents
+  const parents = {};
+  for (const row of rows) for (const nd of row) for (const id of nd.next) (parents[id] = parents[id] || []).push(nd);
+  // assign types floor by floor
+  for (const row of rows) {
+    for (const nd of row) {
+      const r = nd.row;
+      if (r === 0) nd.type = 'combat';
+      else if (r === TREASURE_ROW) nd.type = 'vault';
+      else if (r === ROWS - 1) nd.type = 'cooldown';
+      else {
+        let w = NODE_WEIGHTS;
+        if (r < 2) w = w.filter(([k]) => k !== 'elite' && k !== 'cooldown');
+        if (r === ROWS - 2) w = w.filter(([k]) => k !== 'cooldown'); // rest floor is next
+        if (r === TREASURE_ROW - 1 || r === TREASURE_ROW + 1) w = w.filter(([k]) => k !== 'vault');
+        const par = parents[nd.id] || [];
+        let t = weightedPick(rng, w);
+        for (let k = 0; k < 6 && NO_REPEAT.has(t) && par.some((p) => p.type === t); k++) t = weightedPick(rng, w);
+        if (NO_REPEAT.has(t) && par.some((p) => p.type === t)) t = 'combat';
+        nd.type = t;
       }
     }
-    // every node in b reachable
-    for (const nb of b) {
-      if (!a.some((nd) => nd.next.includes(nb.id))) {
-        const pos = b.length === 1 ? 0.5 : nb.col / (b.length - 1);
-        a[Math.round(pos * (a.length - 1))].next.push(nb.id);
-      }
-    }
   }
-  return { layer, rows };
+  // at least one shop on floors 1..6
+  const mids = rows.slice(1, ROWS - 1).flat().filter((nd) => nd.row !== TREASURE_ROW);
+  if (!mids.some((nd) => nd.type === 'shop')) {
+    const cand = mids.filter((nd) => nd.row >= 2 && (nd.type === 'event' || nd.type === 'combat'));
+    if (cand.length) rng.pick(cand).type = 'shop';
+  }
+  // boss
+  const boss = { id: idc++, row: ROWS, col: 3, gx: 3, n: 1, type: 'boss', next: [], jx: 0, jy: 0 };
+  for (const nd of rows[ROWS - 1]) nd.next.push(boss.id);
+  rows.push([boss]);
+  return { layer, rows, grid: true };
 }
 
 export function findNode(map, id) {

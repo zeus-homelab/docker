@@ -1,5 +1,5 @@
 // Offline cache for the PWA build. Bump VERSION whenever files change.
-const VERSION = 'signal-lost-v1.0.0';
+const VERSION = 'signal-lost-v1.1.0';
 const FILES = [
   './',
   './index.html',

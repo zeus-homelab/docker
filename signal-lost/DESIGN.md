@@ -17,7 +17,7 @@ yourself to the open internet. (Which, as NULL finds out, is mostly arguments an
 
 - **Genre:** action roguelite, room-based, top-down arena
 - **Platform:** Android (portrait, one thumb). Also runs in any modern browser.
-- **Session:** a full run is about 19–24 rooms and 20–30 min. Rooms take 25–90 s, and boss fights take 1.5–3 min. You can quit at the map and continue later.
+- **Session:** a full run is 8 nodes per layer (about 5–6 rooms plus shops/events/rests) and 25–35 min. Rooms take 25–90 s, and boss fights take 1.5–3 min. You can quit at the map and continue later.
 - **Monetization:** none. No ads, no IAP, no premium unlock, no energy, no accounts. A game for fun.
 
 ## 2. Tone & Humor
@@ -104,11 +104,19 @@ Portrait. Two schemes, switched in **Settings → Controls**. Default: **TAP**.
 
 ## 5. Run Structure
 
-- **4 layers.** Each layer is a node map of **6 rows + a boss**. Rows hold 2–3 nodes, and each node links to 1–2
-  nodes in the next row (every node can be reached).
-- Row 0 is all Combat. Row 1 has no Elite or Cooldown. Row 5 (before the boss) is Cooldown + Shop/Cooldown/Event.
-  Rows 1–4 use weights Combat 44 · Elite 12 · Vault 10 · Shop 12 · Event 16 · Cooldown 6. Each layer has at least one
-  Shop in rows 2–4.
+- **4 layers.** Each layer has a **Slay-the-Spire-style map**, random every run (seeded per day for the Daily Breach).
+  The grid is **7 lanes × 8 floors + the boss**. The generator traces **6 random paths** from floor 0 up to floor 7. Each
+  step goes up-left, up or up-right, and paths never cross. Every cell a path touches becomes a node, and the union of
+  the steps forms the edges (about 33 nodes per map, so you always see the whole layer and can plan your route).
+- The first two paths start in different lanes, so floor 0 always offers at least 2 choices. No dead ends.
+- **Floor rules:** floor 1 is all Combat · floor 5 is the **Treasure floor** (all Vaults) · floor 8 is the **Rest
+  floor** (all Cooldowns) · the boss sits above it. Other floors use weights Combat 46 · Event 20 · Elite 12 · Shop 11 ·
+  Cooldown 7 · Vault 4. No Elite or Cooldown on floors 1–2, no Cooldown on floor 7, and no Vault right next to the
+  Treasure floor. **No repeats:** an Elite, Shop, Cooldown or Vault can't directly follow the same type on a path.
+  Each layer has at least one Shop on floors 3–7.
+- **Route planning (map screen):** tap any node to select it. It shows its type and description, and **every path
+  forward from it lights up white**. Tap a glowing (available) node again, or press **ENTER ▸**, to go there.
+  Unselected, the info panel shows "PLAN YOUR ROUTE".
 - A run starts with a **free exploit pick** (3 choices, or 4 with the *Better Options* perk; you can skip).
 
 | Node | Icon | What happens | Reward |
@@ -264,7 +272,8 @@ purple tags on the HUD.
    button): NULL boots ("loading will to live... file not found"), meets BUDDY, G.R.E.G. announces the purge on the PA,
    NULL decides to hijack its way out, and BUDDY tags along.
 5. **Starting exploit pick.**
-6. **Map**: a layer-name card on entry, the node graph (available nodes pulse and are labeled, the current node shows NULL),
+6. **Map**: a layer-name card on entry, the 7×8 node grid (available nodes pulse and are labeled, the boss is labeled,
+   the current node shows NULL, walked edges use the layer color, planned routes are white), an info panel with ENTER,
    pips, Bits, a Trace bar, Daily/Clearance tag, **LOADOUT** overlay (variant, exploits, glitches), and **MENU**
    (Resume · Settings · Save & Quit · Abandon Run).
 7. **Room**: HUD top: pips, Bits, layer/room type, ⏸, Trace bar, glitch tags, and the boss bar with phase marks when there is one.
@@ -334,7 +343,7 @@ purchase. The run is saved every time you see the map. Quitting during a room me
 | TAP + DRAG controls, keyboard, settings | ✅ |
 | 18 hosts with unique specials, enemy AI and enemy specials | ✅ |
 | 4 bosses with hijack twists (Janitor, HR_BOT, Oversight, G.R.E.G.) | ✅ |
-| Node map, Combat/Elite/Vault/Shop/Cooldown/Event/Boss nodes | ✅ |
+| Slay-the-Spire-style random map (7×8 path walk), route planning, all node types | ✅ |
 | 16 exploits, 5 glitches, 4 variants, 5 perks, 8 events | ✅ |
 | Codex + mastery, Upgrade Lab, Clearance 1–20, Daily Breach | ✅ |
 | Boot, title, intro/ending cutscenes, death, victory, credits, pause | ✅ |
@@ -355,3 +364,7 @@ purchase. The run is saved every time you see the map. Quitting during a room me
   monetization. The tech changed from Godot to HTML5 + Capacitor so it can be tested in the cloud and built to an APK on CI.
   Balance from bot playtests: jump Trace 6/14 (was 8/18), room clear −25 Trace (was −10), HR_BOT 1000 HP, G.R.E.G. 600 HP
   with a daze window, ×2 spark damage and ×1.5 host HP, and auto-target priority for bosses and G.R.E.G.
+- **2026-11-09 (v1.1)**: The map is now **Slay-the-Spire style**: a 7-lane × 8-floor grid built from 6 random
+  non-crossing paths, a Treasure floor (Vaults) halfway up, a Rest floor before the boss, no-repeat rules on paths, and
+  route planning (tap a node to highlight every path forward, tap again or ENTER to go). Each layer goes from 6 to
+  8 floors. The APK workflow now installs ImageMagick (the runner doesn't have it). The service worker is now v1.1.0.
