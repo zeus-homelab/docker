@@ -416,7 +416,7 @@
       G.secIdx = si; G.secName = secs[si].n.toUpperCase(); G.secT = 2;
     }
     G.secT = Math.max(0, G.secT - dt);
-    const hype = /CHORUS|DROP|HOOK|SOLO/.test(G.secName);
+    const hype = /CHORUS|DROP|HOOK|SOLO|DRUM|HEAD/.test(G.secName);
     BG.lasers += ((G.rageOn ? 1 : hype ? 0.6 : 0.05) - BG.lasers) * dt * 3;
     if (G.rageOn) {
       G.rage -= dt * 0.06;
@@ -679,23 +679,24 @@
   //  FREE PLAY
   // ============================================================
   const PADS = [
-    { id: 'crash', x: 0.25, y: 0.27, r: 0.17, snd: 'crash', cym: 1, col: '#2ee879', label: 'CRASH', key: 'q' },
-    { id: 'tom1', x: 0.66, y: 0.25, r: 0.14, snd: 'tom1', col: '#2f8bff', label: 'TOM 1', key: 'w' },
-    { id: 'tom2', x: 1.0, y: 0.25, r: 0.14, snd: 'tom2', col: '#7a5cff', label: 'TOM 2', key: 'e' },
-    { id: 'ride', x: 1.48, y: 0.28, r: 0.19, snd: 'ride', cym: 1, col: '#00e5ff', label: 'RIDE', key: 'r' },
-    { id: 'hhc', x: 0.24, y: 0.66, r: 0.16, snd: 'hhc', cym: 1, col: '#ffd60a', label: 'HI-HAT', key: 'a' },
-    { id: 'hho', x: 0.22, y: 0.935, r: 0.065, snd: 'hho', cym: 1, col: '#ffd60a', label: 'OPEN', key: 'z' },
-    { id: 'snare', x: 0.6, y: 0.66, r: 0.155, snd: 'snare', col: '#ff2d55', label: 'SNARE', key: 's' },
-    { id: 'kick', x: 0.98, y: 0.74, r: 0.21, snd: 'kick', col: '#ff8c1a', label: 'KICK', kick: 1, key: ' ' },
-    { id: 'floor', x: 1.4, y: 0.7, r: 0.17, snd: 'tom3', col: '#2ee879', label: 'FLOOR', key: 'd' },
-    { id: 'clap', x: 1.7, y: 0.6, r: 0.07, snd: 'clap', col: '#ff6ad5', label: 'CLAP', key: 'f' },
-    { id: 'cow', x: 1.68, y: 0.9, r: 0.075, snd: 'cowbell', col: '#ffb000', label: 'COW', key: 'c' },
+    { id: 'crash', x: 0.22, y: 0.27, r: 0.17, snd: 'crash', cym: 1, col: '#2ee879', label: 'CRASH', key: 'q' },
+    { id: 'tom1', x: 0.57, y: 0.26, r: 0.14, snd: 'tom1', col: '#2f8bff', label: 'TOM 1', key: 'w' },
+    { id: 'tom2', x: 0.87, y: 0.26, r: 0.14, snd: 'tom2', col: '#7a5cff', label: 'TOM 2', key: 'e' },
+    { id: 'ride', x: 1.24, y: 0.30, r: 0.19, snd: 'ride', cym: 1, col: '#00e5ff', label: 'RIDE', key: 'r' },
+    { id: 'hhc', x: 0.20, y: 0.64, r: 0.16, snd: 'hhc', cym: 1, col: '#ffd60a', label: 'HI-HAT', key: 'a' },
+    { id: 'hho', x: 0.38, y: 0.90, r: 0.065, snd: 'hho', cym: 1, col: '#ffd60a', label: 'OPEN', key: 'z' },
+    { id: 'snare', x: 0.53, y: 0.62, r: 0.155, snd: 'snare', col: '#ff2d55', label: 'SNARE', key: 's' },
+    { id: 'kick', x: 0.88, y: 0.75, r: 0.2, snd: 'kick', col: '#ff8c1a', label: 'KICK', kick: 1, key: ' ' },
+    { id: 'floor', x: 1.26, y: 0.68, r: 0.17, snd: 'tom3', col: '#2ee879', label: 'FLOOR', key: 'd' },
+    { id: 'clap', x: 1.50, y: 0.55, r: 0.07, snd: 'clap', col: '#ff6ad5', label: 'CLAP', key: 'f' },
+    { id: 'cow', x: 1.50, y: 0.88, r: 0.075, snd: 'cowbell', col: '#ffb000', label: 'COW', key: 'c' },
   ];
+  const KIT_W = 1.6;
   const FL = { sc: 1, ox: 0, oy: 0 };
   function layoutFree() {
     const top = 66, aw = W - 20, ah = H - top - 8;
-    FL.sc = Math.min(aw / 1.78, ah);
-    FL.ox = (W - 1.78 * FL.sc) / 2;
+    FL.sc = Math.min(aw / KIT_W, ah);
+    FL.ox = (W - KIT_W * FL.sc) / 2;
     FL.oy = top + (ah - FL.sc) / 2;
   }
   const F = { flash: {}, jam: -1, jamSeq: null, jamStart: 0, jamLen: 0, bpm: 100, metro: false, metroNext: 0, metroBeat: 0, rec: false, loop: [], loopStart: 0, loopLen: 0, schedTo: 0, lastBeat: -1 };

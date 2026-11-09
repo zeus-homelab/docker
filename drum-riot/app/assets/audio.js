@@ -104,15 +104,23 @@ const A = (() => {
       for (let i = 0; i < d.length; i++) { const t = i / sr; d[i] *= (Math.exp(-t * 2.0) * 0.8 + Math.exp(-t * 18) * 0.6) * Math.min(1, t * 600); }
       norm(d, 0.62);
     });
-    drums.ride = mkBuf(1.6, (d, sr) => {
-      metal(d, sr, 66, 5000);
-      let p = 0;
+    // Ride: inharmonic sine partials (no aliasing/buzz) + bell + stick ping
+    drums.ride = mkBuf(2.0, (d, sr) => {
+      const P = [];
+      for (let k = 0; k < 26; k++) P.push({ w: 2 * Math.PI * 3000 * Math.pow(2.6, Math.random()) / sr, a: 0.3 + Math.random() * 0.7, dk: 1.4 + Math.random() * 2.4, ph: Math.random() * 6.28 });
+      const B = [[512, 0.5, 2.6], [796, 0.32, 3.2], [1232, 0.42, 2.8], [1709, 0.22, 4], [2391, 0.3, 3.5]];
+      for (const b of B) P.push({ w: 2 * Math.PI * b[0] / sr, a: b[1] * 3.2, dk: b[2], ph: 0 });
+      const dec = P.map(q => Math.exp(-q.dk / sr));
+      const env = P.map(q => q.a);
       for (let i = 0; i < d.length; i++) {
+        let v = 0;
+        for (let k = 0; k < P.length; k++) { v += env[k] * Math.sin(P[k].ph + P[k].w * i); env[k] *= dec[k]; }
         const t = i / sr;
-        p += 2 * Math.PI * 2650 / sr;
-        d[i] = d[i] * 0.55 * Math.exp(-t * 3) + Math.sin(p) * 0.25 * Math.exp(-t * 6);
+        d[i] = v / 14 + rnd() * 0.35 * Math.exp(-t * 45) + rnd() * 0.04 * Math.exp(-t * 2.5);
       }
-      norm(d, 0.42);
+      biq(d, sr, 'hp', 350, 0.7);
+      for (let i = 0; i < 40; i++) d[i] *= i / 40;
+      norm(d, 0.5);
     });
     const tom = (base) => mkBuf(0.7, (d, sr) => {
       let ph = 0;
@@ -124,13 +132,19 @@ const A = (() => {
       norm(d, 0.85);
     });
     drums.tom1 = tom(230); drums.tom2 = tom(170); drums.tom3 = tom(110);
-    drums.cowbell = mkBuf(0.4, (d, sr) => {
+    // Cowbell: classic 2-tone (band-limited squares at 540 + 800 Hz)
+    drums.cowbell = mkBuf(0.6, (d, sr) => {
       for (let i = 0; i < d.length; i++) {
         const t = i / sr;
-        d[i] = ((t * 560) % 1 < 0.5 ? 1 : -1) + ((t * 845) % 1 < 0.5 ? 1 : -1);
+        let v = 0;
+        for (const f of [540, 800]) for (let h = 1; h * f < 9000; h += 2) v += Math.sin(2 * Math.PI * f * h * t) / h;
+        d[i] = v;
       }
-      biq(d, sr, 'bp', 900, 2.5);
-      for (let i = 0; i < d.length; i++) d[i] *= Math.exp(-(i / sr) * 13);
+      biq(d, sr, 'bp', 1000, 0.9);
+      for (let i = 0; i < d.length; i++) {
+        const t = i / sr;
+        d[i] *= (0.62 * Math.exp(-t * 32) + 0.38 * Math.exp(-t * 6.5)) * Math.min(1, t * 1500);
+      }
       norm(d, 0.5);
     });
     drums.stick = mkBuf(0.08, (d, sr) => {
@@ -368,6 +382,9 @@ const PRESETS = {
   bell:  { w: 'triangle', det: [0, 1200], cut: 5000, q: 0.5, a: 0.003, d: 0.5, s: 0.15, r: 0.4, g: 0.09, dly: 0.35, rev: 0.4 },
   clav:  { w: 'square', cut: 1100, ce: 3200, fd: 0.08, q: 8, a: 0.002, d: 0.1, s: 0.1, r: 0.04, g: 0.065 },
   brass: { w: 'sawtooth', det: [-6, 6], cut: 900, ce: 2600, fd: 0.12, q: 2, a: 0.03, d: 0.2, s: 0.75, r: 0.1, g: 0.08, rev: 0.25 },
+  upright: { w: 'triangle', det: [0, 3], cut: 700, ce: 900, fd: 0.09, q: 1.5, a: 0.004, d: 0.3, s: 0.35, r: 0.08, g: 0.55 },
+  epiano: { w: 'sine', det: [0, 1200], cut: 3500, q: 0.5, a: 0.004, d: 0.7, s: 0.3, r: 0.25, g: 0.07, rev: 0.35 },
+  sax:   { w: 'sawtooth', det: [-5, 5], cut: 1100, ce: 1700, fd: 0.14, q: 2.5, a: 0.035, d: 0.3, s: 0.8, r: 0.12, g: 0.085, vib: 4, rev: 0.35 },
   gtr:   { w: 'sawtooth', det: [-9, 9], cut: 3200, q: 0.7, a: 0.004, d: 0.4, s: 0.75, r: 0.09, g: 0.2, bus: 'gtr' },
   gtrM:  { w: 'sawtooth', det: [-9, 9], cut: 800, ce: 1100, fd: 0.07, q: 1.5, a: 0.002, d: 0.08, s: 0.3, r: 0.04, g: 0.22, bus: 'gtr' },
   gtrL:  { w: 'sawtooth', det: [-4, 4], cut: 2600, ce: 1200, fd: 0.2, q: 2, a: 0.01, d: 0.3, s: 0.8, r: 0.15, g: 0.13, bus: 'gtr', vib: 6, dly: 0.25 },

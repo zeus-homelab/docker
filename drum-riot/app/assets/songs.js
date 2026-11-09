@@ -27,6 +27,13 @@ const DP = {
   drop:    { K: 'x...x...x...x...', S: '....x.......x...', H: 'x...x...x...x...', O: '..x...x...x...x.' },
   hits:    { K: 'x.......x.......', C: 'x.......x.......' },
   end:     { K: 'x...............', C: 'x...............' },
+  // jazz (only even steps: offbeat 8ths get swung)
+  swing:   { R: 'x...x.x.x...x.x.', K: 'x.......x.......', S: '......x.......x.' },
+  swing2:  { R: 'x...x.x.x...x.x.', K: 'x.........x.....', S: '....x.......x...' },
+  solo1:   { K: 'x.......x.......', S: 'x.x.x.x.....x.x.', T: '........x.x.....' },
+  solo2:   { K: 'x.....x.........', T: 'x.x.x...........', M: '......x.x.......', S: '..........x.x...', F: '..............x.' },
+  solo3:   { K: 'x...x...x...x...', S: 'x.x.x.x.x.x.x.x.', C: '............x...' },
+  solo4:   { K: 'x.......x.......', T: 'x.x.x...........', M: '......x.x.......', F: '..........x.x.x.' },
 };
 
 // Fills: 8-step fills replace the 2nd half of the last bar; full:true replaces the whole bar
@@ -46,6 +53,7 @@ const SCALES = {
   minor: [0, 2, 3, 5, 7, 8, 10],
   dorian: [0, 2, 3, 5, 7, 9, 10],
   penta: [0, 3, 5, 7, 10],
+  blues: [0, 3, 5, 6, 7, 10],
 };
 
 const SONGS = [
@@ -106,6 +114,23 @@ const SONGS = [
     ],
   },
   {
+    id: 'bop', title: 'Back Alley Bop', artist: 'The Brushfire Quartet', genre: 'Jazz Swing · Drum Lead', bpm: 150, theme: 'jazz', level: 4,
+    scale: 'blues', leadRoot: 65, bassLo: 29, leadP: 'sax', swing: 0.67, jam: 1,
+    hooks: { A: '5:2 6:2 7:4 6:2 5:2 3:4 4:2 5:2 3:2 2:2 1:8 1:2 2:2 3:2 4:2 5:4 7:4 8:2 7:2 6:2 5:2 3:8' },
+    sec: [
+      { n: 'Drum Intro', b: 4, ch: ['F7'], dr: ['solo1', 'solo2', 'solo3', 'solo4'], crash: 1 },
+      { n: 'Head', b: 8, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'Fmaj7', 'Am7', 'D7', 'Gm7', 'C7'], dr: 'swing', bass: 'walk', comp: 1, lead: 'A', fill: 'f8a', crash: 1 },
+      { n: 'Head', b: 8, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'Fmaj7', 'Am7', 'D7', 'Gm7', 'C7'], dr: 'swing2', bass: 'walk', comp: 1, lead: 'A', fill: 'big', crash: 4 },
+      { n: 'Trade - Band', b: 4, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'D7'], dr: 'swing', bass: 'walk', comp: 1, arp: 'arp8', arpP: 'sax', arpLo: 60, fill: 'f8b', crash: 1 },
+      { n: 'Drum Break!', b: 4, ch: ['F7'], dr: ['solo1', 'solo2', 'solo3', 'solo4'], crash: 1 },
+      { n: 'Trade - Band', b: 4, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'D7'], dr: 'swing2', bass: 'walk', comp: 1, arp: 'arp8', arpP: 'sax', arpLo: 60, fill: 'f8b', crash: 1 },
+      { n: 'Drum Break!', b: 4, ch: ['F7'], dr: ['solo3', 'solo2', 'solo1', 'solo4'], crash: 1 },
+      { n: 'Drum Solo', b: 8, ch: ['F7', 'Bb7'], dr: ['solo1', 'solo2', 'solo3', 'solo4', 'solo2', 'solo1', 'solo3', 'solo4'], bass: 'walk', crash: 4 },
+      { n: 'Head Out', b: 8, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'Fmaj7', 'Am7', 'D7', 'Gm7', 'C7'], dr: 'swing2', bass: 'walk', comp: 1, lead: 'A', fill: 'big', crash: 1 },
+      { n: 'Ending', b: 4, cpb: 2, ch: ['Gm7', 'C7', 'Fmaj7', 'Fmaj7'], dr: 'swing', bass: 'walk', comp: 1, lead: 'A', crash: 1, end: true },
+    ],
+  },
+  {
     id: 'steel', title: 'Steel Thunder', artist: 'Voltage Kings', genre: 'Hard Rock', bpm: 138, theme: 'fire', level: 4,
     scale: 'penta', leadRoot: 64, bassLo: 28, gtrLo: 40, leadP: 'gtrL', jam: 2,
     hooks: { A: '6:4 5:2 4:2 5:4 4:2 3:2 4:8 3:4 2:4 1:4 2:2 3:2 4:4 5:4 6:12 .:4' },
@@ -144,12 +169,13 @@ const THEMES = {
   edm:   { sky: ['#000814', '#001d3d', '#00c98a'], sun: ['#d9ff00', '#00ffa3'], grid: '#00ffd5', floor: ['#001428', '#000208'], mount: ['#00182e', '#00284a'], edge: '#7cff00', laser: '#00ff6a', accent: '#00ffd5' },
   fire:  { sky: ['#0a0000', '#3a0505', '#ff5a00'], sun: ['#fff27a', '#ff3b00'], grid: '#ff4d00', floor: ['#1a0300', '#050000'], mount: ['#200000', '#3a0a00'], edge: '#ffae00', laser: '#ff2200', accent: '#ff8800' },
   lava:  { sky: ['#000000', '#1a0000', '#9b0000'], sun: ['#ffcc00', '#ff0000'], grid: '#ff1a1a', floor: ['#140000', '#000000'], mount: ['#1a0000', '#2e0000'], edge: '#ff6600', laser: '#ff0000', accent: '#ff3300' },
+  jazz:  { sky: ['#05040f', '#1b1035', '#c46a1d'], sun: ['#ffe0a0', '#ff7a2a'], grid: '#e0a040', floor: ['#120a20', '#030108'], mount: ['#140c26', '#221438'], edge: '#ffb347', laser: '#ffd27a', accent: '#ffb347' },
   rage:  { sky: ['#1a0a00', '#5a2a00', '#ffd000'], sun: ['#ffffff', '#ffb000'], grid: '#ffd000', floor: ['#2a1400', '#080300'], mount: ['#2a1200', '#4a2200'], edge: '#fff27a', laser: '#ffe066', accent: '#ffd000' },
 };
 
 // ---------- music theory helpers ----------
 const NN = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
-const QUAL = { '': [0, 4, 7], m: [0, 3, 7], '5': [0, 7, 12], m7: [0, 3, 7, 10], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11], sus2: [0, 2, 7], sus4: [0, 5, 7] };
+const QUAL = { m9: [0, 3, 7, 10, 14], '9': [0, 4, 7, 10, 14], '': [0, 4, 7], m: [0, 3, 7], '5': [0, 7, 12], m7: [0, 3, 7, 10], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11], sus2: [0, 2, 7], sus4: [0, 5, 7] };
 function parseChord(name) {
   const m = name.match(/^([A-G][#b]?)(.*)$/);
   return { r: NN[m[1]], iv: QUAL[m[2]] || QUAL[''] };
@@ -175,14 +201,17 @@ const GAL = 'x.xxx.xxx.xxx.xx';
 const CLAV = '..x..x.x..x..x.x';
 
 // ---------- music generation for one bar ----------
+const sw = (S, s) => s + (S.swing && s % 4 === 2 ? S.swing : 0);
+const COMP = [[0, 3], [6, 2], [10, 1.5]];
 function genMusic(S, sec, b, barT, st, ev, last) {
   const cpb = sec.cpb || 1, seg = 16 / cpb;
-  const add = (s, m, len, p) => ev.push({ t: barT + s * st, k: 'n', m, d: len * st, p });
+  const add = (s, m, len, p) => ev.push({ t: barT + sw(S, s) * st, k: 'n', m, d: len * st, p });
   for (let h = 0; h < cpb; h++) {
     const C = parseChord(sec.ch[(b * cpb + h) % sec.ch.length]);
     const s0 = h * seg, s1 = s0 + seg;
     const br = inR(C.r, S.bassLo || 33);
     const tones = C.iv.map(iv => C.r + iv);
+    const NC = parseChord(sec.ch[(b * cpb + h + 1) % sec.ch.length]);
     if (last && sec.end) {
       if (h === 0) {
         add(0, br, 24, 'sub');
@@ -198,6 +227,13 @@ function genMusic(S, sec, b, barT, st, ev, last) {
       case 'sub': add(s0, br, seg - 0.5, 'sub'); break;
       case 'pump': for (let s = s0; s < s1; s += 4) { add(s + 2, br, 1.8, 'sub'); add(s + 3, br + 12, 0.8, 'bass'); } break;
       case 'funk': for (const [s, iv, l] of FUNK_BASS) if (s >= s0 && s < s1) add(s, br + iv, l, 'bassF'); break;
+      case 'walk': {
+        const n = seg / 4, nr = inR(NC.r, S.bassLo || 33);
+        const appr = nr + ((b + h) % 2 ? 1 : -1);
+        const line = n >= 4 ? [br, br + C.iv[1], br + C.iv[2], appr] : [br, appr];
+        line.forEach((m, k) => add(s0 + k * 4, m, 3.6, 'upright'));
+        break;
+      }
       case 'gallop': for (let s = s0; s < s1; s++) if (GAL[s] === 'x') add(s, br, 0.9, 'bass'); break;
     }
     if (sec.gtr) {
@@ -223,12 +259,16 @@ function genMusic(S, sec, b, barT, st, ev, last) {
       for (let s = s0; s < s1; s += 4) vo.forEach(m => add(s + 2, m, 1.4, 'ssaw'));
       add(s0, inR(C.r, 48), seg, 'pad');
     }
+    if (sec.comp) {
+      const vo = [...C.iv.slice(1, 4), 14].map(iv => inR((C.r + iv) % 12, 57));
+      for (const [s, l] of COMP) if (s >= s0 && s < s1) vo.forEach(m => add(s, m, l, 'epiano'));
+    }
     if (sec.clav) {
       const vo = tones.slice(0, 4).map(pc => inR(pc % 12, 60));
       for (let s = s0; s < s1; s++) if (CLAV[s] === 'x') vo.forEach(m => add(s, m, 0.8, 'clav'));
     }
     if (sec.arp) {
-      const base = [...new Set(tones.map(pc => inR(pc % 12, sec.arpP ? 52 : 64)))].sort((a, c) => a - c);
+      const base = [...new Set(tones.map(pc => inR(pc % 12, sec.arpLo || (sec.arpP ? 52 : 64))))].sort((a, c) => a - c);
       const up = base.concat(base.map(m => m + 12));
       const seq = up.concat(up.slice(1, -1).reverse());
       const stp = sec.arp === 'arp8' ? 2 : 1;
@@ -240,7 +280,7 @@ function genMusic(S, sec, b, barT, st, ev, last) {
     const off = (b * 16) % H.len;
     for (const [pos, d, len] of H.notes) {
       if (pos >= off && pos < off + 16) {
-        ev.push({ t: barT + (pos - off) * st, k: 'n', m: degToMidi(S, d) + (sec.leadOct || 0), d: len * st * 0.95, p: S.leadP || 'lead' });
+        ev.push({ t: barT + sw(S, pos - off) * st, k: 'n', m: degToMidi(S, d) + (sec.leadOct || 0), d: len * st * 0.95, p: S.leadP || 'lead' });
       }
     }
   }
@@ -251,7 +291,7 @@ function genMusic(S, sec, b, barT, st, ev, last) {
 // ---------- drum chart for one bar ----------
 const LANEMAP = { K: [4, 'kick'], S: [0, 'snare'], H: [1, 'hhc'], O: [1, 'hho'], R: [1, 'ride'], T: [2, 'tom1'], M: [2, 'tom2'], F: [3, 'tom3'], C: [3, 'crash'] };
 const PRI = { C: 5, S: 4, K: 4, F: 3, T: 3, M: 3, O: 2, H: 1, R: 1 };
-function genDrums(sec, b, barT, st, notes, last, gBase) {
+function genDrums(S, sec, b, barT, st, notes, last, gBase) {
   let name = Array.isArray(sec.dr) ? sec.dr[b % sec.dr.length] : sec.dr;
   if (!name) return;
   if (last && sec.end) name = 'end';
@@ -286,7 +326,7 @@ function genDrums(sec, b, barT, st, notes, last, gBase) {
     }
     for (const l in byLane) {
       const o = byLane[l];
-      notes.push({ t: barT + s * st, lane: o.lane, snd: o.snd, k: o.k, gs: gBase + s });
+      notes.push({ t: barT + sw(S, s) * st, lane: o.lane, snd: o.snd, k: o.k, gs: gBase + s });
     }
   }
 }
@@ -327,7 +367,7 @@ function buildSong(S, diff) {
       const barT = bar * 16 * st;
       const last = b === sec.b - 1;
       genMusic(S, sec, b, barT, st, ev, last);
-      genDrums(sec, b, barT, st, notes, last, bar * 16);
+      genDrums(S, sec, b, barT, st, notes, last, bar * 16);
       bar++;
     }
   }
@@ -352,6 +392,6 @@ function buildDrumLoop(S, secIdx) {
   const sec = S.sec[secIdx];
   const st = 60 / S.bpm / 4;
   const notes = [];
-  for (let b = 0; b < sec.b; b++) genDrums(sec, b, b * 16 * st, st, notes, b === sec.b - 1, b * 16);
+  for (let b = 0; b < sec.b; b++) genDrums(S, sec, b, b * 16 * st, st, notes, b === sec.b - 1, b * 16);
   return notes.map(n => ({ t: n.t, k: 'd', n: n.snd, v: 0.7 }));
 }

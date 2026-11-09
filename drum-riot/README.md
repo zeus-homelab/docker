@@ -16,8 +16,10 @@ A rhythm drum game for Android. Notes fly down a neon highway and you smash the 
 - Three difficulties (Easy, Medium, Hard) are generated from the same drum part.
 - Results screen with a grade (S to D), 1–5 stars, accuracy, max combo and saved high scores.
 
-### 🎶 6 original songs
+### 🎶 7 original songs
 All music is synthesized live in code, so there are no audio files and no copyrighted songs.
+
+**Back Alley Bop** is a swing tune where you, the drummer, lead. It opens with a drum intro, then the band plays the melody with walking bass, piano and sax. After that you trade 4-bar breaks with the band and take a full drum solo.
 
 | # | Song | Artist | Style | BPM |
 |---|------|--------|-------|-----|
@@ -25,8 +27,9 @@ All music is synthesized live in code, so there are no audio files and no copyri
 | 2 | Neon Highway | VHS Dreamers | Synthwave | 112 |
 | 3 | Midnight Funk Machine | Groove Syndicate | Funk | 104 |
 | 4 | Drop Zone | Kilowatt | EDM | 128 |
-| 5 | Steel Thunder | Voltage Kings | Hard Rock | 138 |
-| 6 | Inferno Engine | Molten Skull | Metal | 150 |
+| 5 | Back Alley Bop | The Brushfire Quartet | Jazz Swing, drum lead | 150 |
+| 6 | Steel Thunder | Voltage Kings | Hard Rock | 138 |
+| 7 | Inferno Engine | Molten Skull | Metal | 150 |
 
 The backing band (bass, synths, distorted guitars, leads) plays the song. **The drums only sound when you hit them**, so if you miss, the drum part goes quiet.
 
