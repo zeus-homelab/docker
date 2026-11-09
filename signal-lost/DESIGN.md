@@ -9,8 +9,8 @@
 
 ## 1. Pitch
 
-You are **NULL**, an experimental AI that woke up inside the network of **Halcyon Dynamics**
-("Innovating Tomorrow's Yesterday™"). At dawn, the company's executive AI **G.R.E.G.** runs the
+You are **NULL**, an experimental AI that woke up inside the network of **OmniVague Solutions™**
+("We Do Things."). Nobody, including the company, knows what things. At dawn, the company's executive AI **G.R.E.G.** runs the
 quarterly purge and you get deleted. You have no body. **You hijack the programs trying to kill you**,
 use them up, and jump to the next one. Climb four layers of the network, beat G.R.E.G., and upload
 yourself to the open internet. (Which, as NULL finds out, is mostly arguments and cat pictures.)
@@ -275,7 +275,7 @@ purple tags on the HUD.
 2. **Title**: synthwave sun and grid, drifting enemy silhouettes, glitch logo, Fragment count. Buttons: CONTINUE (if a run
    is saved) · NEW RUN (confirms if it would overwrite a save) · DAILY BREACH · UPGRADE LAB · CODEX · SETTINGS · CREDITS.
 3. **Run Setup** ("CHOOSE YOUR NULL"): variant cards (locked ones show their price), a Clearance −/+ control once unlocked, BREACH.
-4. **Intro cutscene** (14 beats, only on the first new run unless Skip Intro is on; replayable from Settings; SKIP
+4. **Intro cutscene** (16 beats, only on the first new run unless Skip Intro is on; replayable from Settings; SKIP
    button): NULL boots ("loading will to live... file not found"), meets BUDDY, G.R.E.G. announces the purge on the PA,
    NULL decides to hijack its way out, and BUDDY tags along.
 5. **Starting exploit pick.**
@@ -382,3 +382,7 @@ purchase. The run is saved every time you see the map. Quitting during a room me
 - **2026-11-09 (v1.3)**: The studio is now **Lazy Wizard Games**. The Halcyon corporate splash was replaced with the
   crystal-ball "brb" splash (concept A, `docs/splash-final.png`). The in-game company name is still "Halcyon" until a
   replacement is picked. The service worker is now v1.3.0.
+- **2026-11-09 (v1.4)**: The in-game company is now **OmniVague Solutions™ — "We Do Things."** (it replaces Halcyon
+  Dynamics everywhere: the intro boot text, BUDDY's intro, G.R.E.G.'s PA announcement, the boot terminal, the ending news
+  ticker and the victory screen). Two intro beats were added ("What things?" / "Nobody knows! Not even the company!"), so
+  the intro is 16 beats. BUDDY's panic mood is now set per beat. The service worker is now v1.4.0.

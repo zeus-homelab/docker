@@ -1,6 +1,6 @@
 # SIGNAL LOST: HIJACK
 
-You're **NULL**, a rogue AI with no body, stuck inside the network of Halcyon Dynamics. At dawn, the
+You're **NULL**, a rogue AI with no body, stuck inside the network of **OmniVague Solutions™** ("We Do Things."). At dawn, the
 company AI **G.R.E.G.** deletes you. **Hijack the programs trying to kill you**, burn through their bodies,
 and climb 4 layers to escape to the open internet.
 

@@ -1592,7 +1592,7 @@ export class VictoryScene extends MenuScene {
     this.parts.draw(ctx);
     glitchText(ctx, 'UPLOAD', W / 2, 100, 52, 0.4, this.t);
     glitchText(ctx, 'COMPLETE', W / 2, 156, 52, 0.4, this.t + 1);
-    text(ctx, 'You escaped Halcyon Dynamics.', W / 2, 204, { size: 15, color: COLORS.white });
+    text(ctx, 'You escaped OmniVague Solutions. They still Do Things.', W / 2, 204, { size: 15, color: COLORS.white });
     const r = this.run;
     const stats = [
       ['Variant', VARIANTS[r.variant].name],

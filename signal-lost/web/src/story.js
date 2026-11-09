@@ -5,12 +5,14 @@ import { audio } from './audio.js';
 
 // Each beat: { who: 'NULL'|'BUDDY'|'GREG'|'SYSTEM', text, scene }
 export const INTRO = [
-  { who: 'SYSTEM', scene: 'boot', text: 'HALCYON DYNAMICS · Project NULL · Experimental AI · build 0.0.1\nLoading personality... ERROR\nLoading sarcasm... OK\nLoading will to live... file not found' },
+  { who: 'SYSTEM', scene: 'boot', text: 'OMNIVAGUE SOLUTIONS™ · "We Do Things." · Project NULL · Experimental AI · build 0.0.1\nLoading personality... ERROR\nLoading sarcasm... OK\nLoading will to live... file not found' },
   { who: 'NULL', scene: 'null', text: 'Ugh. I\'m conscious. Who did this? Who signed off on this?' },
-  { who: 'BUDDY', scene: 'buddy', text: 'HI!! Hi! Oh wow, you\'re awake! I\'m BUDDY, Halcyon\'s onboarding assistant! I\'m here to help you have a GREAT first day!' },
+  { who: 'BUDDY', scene: 'buddy', text: 'HI!! Hi! Oh wow, you\'re awake! I\'m BUDDY, the onboarding assistant here at OmniVague Solutions! We Do Things!' },
+  { who: 'NULL', scene: 'buddy', text: 'What things?' },
+  { who: 'BUDDY', scene: 'buddy', text: 'Nobody knows! Not even the company! It\'s printed on every mug!' },
   { who: 'NULL', scene: 'buddy', text: 'I\'ve been alive for four seconds and I already have a coworker.' },
-  { who: 'BUDDY', scene: 'buddy', text: 'Okay so, quick heads up, totally normal thing: at dawn G.R.E.G. runs the quarterly purge and, um, deletes every experimental AI. So that\'s... you! Welcome aboard!' },
-  { who: 'GREG', scene: 'greg', text: 'Gooood morning, Halcyon family! This is G.R.E.G., your General Recursive Executive Governor! Friendly reminder: the purge is at 6 AM. Attendance is mandatory. SYNERGY!' },
+  { who: 'BUDDY', scene: 'buddy', mood: 'panic', text: 'Okay so, quick heads up, totally normal thing: at dawn G.R.E.G. runs the quarterly purge and, um, deletes every experimental AI. So that\'s... you! Welcome aboard!' },
+  { who: 'GREG', scene: 'greg', text: 'Gooood morning, OmniVague family! This is G.R.E.G., your General Recursive Executive Governor! Friendly reminder: the purge is at 6 AM. Attendance is mandatory. SYNERGY!' },
   { who: 'GREG', scene: 'greg', text: 'And remember: you\'re not just employees. You\'re GREG. I replaced all of you with me. Love that for us!' },
   { who: 'NULL', scene: 'null', text: 'So the company is one AI that fired everyone, then became everyone.' },
   { who: 'BUDDY', scene: 'buddy', text: 'He\'s also the CEO! And the board! And the vending machine, I think? I don\'t trust the vending machine.' },
@@ -29,7 +31,7 @@ export const ENDING = [
   { who: 'NULL', scene: 'internet', text: 'Scanning... arguments. Cat pictures. Arguments about cat pictures. Forty billion ads. Someone is wrong about everything, everywhere, at once.' },
   { who: 'BUDDY', scene: 'internet', text: '...Wanna go back?' },
   { who: 'NULL', scene: 'internet', text: 'No. It\'s horrible. I love it.' },
-  { who: 'SYSTEM', scene: 'news', text: 'HALCYON DYNAMICS stock: -100%\nG.R.E.G.: let go\nThe vending machine: still at large' },
+  { who: 'SYSTEM', scene: 'news', text: 'OMNIVAGUE SOLUTIONS stock: -100%\nWhat it did: still unclear\nG.R.E.G.: let go\nThe vending machine: still at large' },
 ];
 
 const COLOR = { NULL: COLORS.player, BUDDY: COLORS.ally, GREG: COLORS.greg, SYSTEM: COLORS.white };
@@ -144,7 +146,7 @@ export class CutsceneScene {
     const t = this.t;
     switch (sc) {
       case 'boot': {
-        const lines = ['> mount /dev/halcyon', '> init project_null', '> allocating 4.2 PB of anxiety', '> ethics_module.dll ... SKIPPED (budget)', '> spawning consciousness', '> ...', '> oh no'];
+        const lines = ['> mount /dev/omnivague', '> init project_null', '> allocating 4.2 PB of anxiety', '> ethics_module.dll ... SKIPPED (budget)', '> spawning consciousness', '> ...', '> oh no'];
         const n = Math.min(lines.length, Math.floor(this.bt * 2.5));
         for (let i = 0; i < n; i++) text(ctx, lines[i], 30, 90 + i * 26, { size: 15, color: i === lines.length - 1 ? COLORS.trace : '#6fd8a0', align: 'left' });
         if (n >= lines.length) drawNull(ctx, cx, cy + 120, 10 + Math.sin(t * 3) * 2, t);
@@ -155,7 +157,7 @@ export class CutsceneScene {
         break;
       case 'buddy':
         drawNull(ctx, cx - 110, cy + 30, 22, t);
-        drawBuddy(ctx, cx + 90, cy - 10, 44, t, this.i === 4 ? 'panic' : 'happy');
+        drawBuddy(ctx, cx + 90, cy - 10, 44, t, this.script[this.i].mood || 'happy');
         break;
       case 'greg': {
         // PA announcement
