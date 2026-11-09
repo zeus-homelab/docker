@@ -31,7 +31,7 @@ if [ ! -f $KS ]; then
   keytool -genkeypair -keystore $KS -storepass android -keypass android -alias drumriot \
     -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Drum Riot,O=Drum Riot,C=US" >/dev/null 2>&1
 fi
-apksigner sign --ks $KS --ks-pass pass:android --key-pass pass:android --ks-key-alias drumriot \
+apksigner sign --v4-signing-enabled false --ks $KS --ks-pass pass:android --key-pass pass:android --ks-key-alias drumriot \
   --out $DIST/DrumRiot.apk $OUT/aligned.apk
 apksigner verify --print-certs $DIST/DrumRiot.apk | head -1
 ls -la $DIST/DrumRiot.apk
