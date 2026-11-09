@@ -5,7 +5,7 @@
 export const HOSTS = {
   // ---------- Layer 1: Basement Servers ----------
   crawler: {
-    name: 'Crawler', layer: 1, hp: 30, speed: 150, r: 13, shape: 'crawler', bits: 2,
+    name: 'Crawler', layer: 1, hp: 30, speed: 150, r: 13, jump: 150, shape: 'crawler', bits: 2,
     attack: { type: 'melee', dmg: 6, rate: 2.2, range: 26 },
     ai: 'chase',
     special: { id: 'dash', cd: 3, name: 'DASH', desc: 'Invulnerable burst. Damages what you pass.' },
@@ -13,7 +13,7 @@ export const HOSTS = {
     codex: 'A garbage-collector subroutine that was never collected itself. Fast, fragile, extremely hungry for nothing in particular.',
   },
   spambot: {
-    name: 'Spambot', layer: 1, hp: 45, speed: 85, r: 15, shape: 'spambot', bits: 3,
+    name: 'Spambot', layer: 1, hp: 45, speed: 85, r: 15, jump: 160, shape: 'spambot', bits: 3,
     attack: { type: 'shot', dmg: 5, rate: 2.2, range: 300, speed: 330 },
     ai: 'kite',
     special: { id: 'blast', cd: 5, name: 'BLAST', desc: '10 spam packets in a ring.' },
@@ -21,7 +21,7 @@ export const HOSTS = {
     codex: 'Sends 40,000 emails per second. Has never once been opened. Still believes in itself, which is honestly inspiring.',
   },
   firewall: {
-    name: 'Firewall', layer: 1, hp: 110, speed: 50, r: 21, shape: 'firewall', bits: 5,
+    name: 'Firewall', layer: 1, hp: 110, speed: 50, r: 21, jump: 135, shape: 'firewall', bits: 5,
     attack: { type: 'shot', dmg: 8, rate: 1, range: 280, speed: 280, size: 6 },
     ai: 'chase',
     special: { id: 'shield', cd: 7, name: 'SHIELD WALL', desc: 'Block all incoming shots for 3s.' },
@@ -29,7 +29,7 @@ export const HOSTS = {
     codex: 'A wall. That is on fire. Nobody in IT knows why it is on fire, and everyone is too afraid to ask.',
   },
   spooler: {
-    name: 'Print Spooler', layer: 1, hp: 70, speed: 0, r: 18, shape: 'spooler', bits: 4,
+    name: 'Print Spooler', layer: 1, hp: 70, speed: 0, r: 18, jump: 215, shape: 'spooler', bits: 4,
     attack: { type: 'shot', dmg: 7, rate: 1.6, range: 340, speed: 300 },
     ai: 'static',
     special: { id: 'jam', cd: 6, name: 'PAPER JAM', desc: 'Freeze enemies in a cone for 2s.' },
@@ -37,7 +37,7 @@ export const HOSTS = {
     codex: 'Has been printing the same 400-page document since 2009. Can\'t move. Won\'t stop. Relatable.',
   },
   trashbin: {
-    name: 'Trash Bin', layer: 1, hp: 60, speed: 60, r: 16, shape: 'trashbin', bits: 1, bossOnly: true,
+    name: 'Trash Bin', layer: 1, hp: 60, speed: 60, r: 16, jump: 160, shape: 'trashbin', bits: 1, bossOnly: true,
     attack: { type: 'shot', dmg: 9, rate: 1.5, range: 260, speed: 300 },
     ai: 'chase',
     special: { id: 'dive', cd: 6, name: 'DUMPSTER DIVE', desc: 'Invisible to the mop beam for 3s.' },
@@ -47,7 +47,7 @@ export const HOSTS = {
 
   // ---------- Layer 2: Corporate Intranet ----------
   email: {
-    name: 'Email Client', layer: 2, hp: 55, speed: 80, r: 15, shape: 'email', bits: 3,
+    name: 'Email Client', layer: 2, hp: 55, speed: 80, r: 15, jump: 160, shape: 'email', bits: 3,
     attack: { type: 'shot', dmg: 6, rate: 2, range: 300, speed: 340, bounce: 1 },
     ai: 'kite',
     special: { id: 'replyall', cd: 6, name: 'REPLY ALL', desc: 'Hit every enemy within 260 for 10.' },
@@ -55,7 +55,7 @@ export const HOSTS = {
     codex: '84,000 unread messages. Marks them all as read once a quarter as a form of self-care.',
   },
   calendar: {
-    name: 'Calendar Bot', layer: 2, hp: 60, speed: 90, r: 15, shape: 'calendar', bits: 3,
+    name: 'Calendar Bot', layer: 2, hp: 60, speed: 90, r: 15, jump: 165, shape: 'calendar', bits: 3,
     attack: { type: 'shot', dmg: 6, rate: 2, range: 300, speed: 320 },
     ai: 'strafe',
     special: { id: 'schedule', cd: 5, name: 'SCHEDULE', desc: 'Freeze nearest enemy 4s. It\'s in a meeting.' },
@@ -63,7 +63,7 @@ export const HOSTS = {
     codex: 'Schedules meetings about scheduling meetings. Has double-booked itself into a temporal loop.',
   },
   captcha: {
-    name: 'Captcha', layer: 2, hp: 50, speed: 70, r: 15, shape: 'captcha', bits: 3,
+    name: 'Captcha', layer: 2, hp: 50, speed: 70, r: 15, jump: 150, shape: 'captcha', bits: 3,
     attack: { type: 'melee', dmg: 8, rate: 1.8, range: 28 },
     ai: 'chase',
     special: { id: 'confuse', cd: 8, name: 'PROVE IT', desc: 'Nearby enemies attack each other for 3s.' },
@@ -71,7 +71,7 @@ export const HOSTS = {
     codex: 'Its sole job is asking robots if they are robots. It is a robot. It has never asked itself.',
   },
   updater: {
-    name: 'Auto-Updater', layer: 2, hp: 90, speed: 60, r: 17, shape: 'updater', bits: 4,
+    name: 'Auto-Updater', layer: 2, hp: 90, speed: 60, r: 17, jump: 150, shape: 'updater', bits: 4,
     attack: { type: 'shot', dmg: 7, rate: 1.6, range: 300, speed: 300 },
     ai: 'chase',
     special: { id: 'restart', cd: 999, name: 'RESTART', desc: 'Once: full Integrity, stunned 1.5s.' },
@@ -79,7 +79,7 @@ export const HOSTS = {
     codex: 'Will restart your computer during your most important presentation. It is not malicious. It is worse: it is scheduled.',
   },
   employee: {
-    name: 'Employee', layer: 2, hp: 40, speed: 70, r: 14, shape: 'employee', bits: 1, bossOnly: true,
+    name: 'Employee', layer: 2, hp: 40, speed: 70, r: 14, jump: 160, shape: 'employee', bits: 1, bossOnly: true,
     attack: { type: 'shot', dmg: 5, rate: 1.8, range: 260, speed: 300 },
     ai: 'strafe',
     special: { id: 'unionize', cd: 8, name: 'UNIONIZE', desc: 'Allies nearby +50% dmg for 4s.' },
@@ -89,7 +89,7 @@ export const HOSTS = {
 
   // ---------- Layer 3: Surveillance Grid ----------
   camera: {
-    name: 'Camera Eye', layer: 3, hp: 50, speed: 0, r: 16, shape: 'camera', bits: 4,
+    name: 'Camera Eye', layer: 3, hp: 50, speed: 0, r: 16, jump: 215, shape: 'camera', bits: 4,
     attack: { type: 'shot', dmg: 9, rate: 1.1, range: 480, speed: 620, size: 3, laser: true },
     ai: 'static',
     special: { id: 'zoom', cd: 6, name: 'ENHANCE', desc: 'Next 3 shots deal x2.' },
@@ -97,7 +97,7 @@ export const HOSTS = {
     codex: 'Watches everything, remembers everything, understands nothing. A perfect middle-management candidate.',
   },
   drone: {
-    name: 'Drone', layer: 3, hp: 55, speed: 130, r: 14, shape: 'drone', bits: 4, flying: true,
+    name: 'Drone', layer: 3, hp: 55, speed: 130, r: 14, jump: 180, shape: 'drone', bits: 4, flying: true,
     attack: { type: 'shot', dmg: 6, rate: 2.2, range: 280, speed: 340 },
     ai: 'strafe',
     special: { id: 'bomb', cd: 6, name: 'CARPET BOMB', desc: 'Drop 5 bombs along your path.' },
@@ -105,7 +105,7 @@ export const HOSTS = {
     codex: 'Originally designed to deliver coffee. Now delivers consequences. Still smells faintly of hazelnut.',
   },
   facerec: {
-    name: 'Facial Recognition', layer: 3, hp: 60, speed: 75, r: 15, shape: 'facerec', bits: 4,
+    name: 'Facial Recognition', layer: 3, hp: 60, speed: 75, r: 15, jump: 160, shape: 'facerec', bits: 4,
     attack: { type: 'shot', dmg: 7, rate: 1.8, range: 300, speed: 330 },
     ai: 'kite',
     special: { id: 'mark', cd: 6, name: 'MARK', desc: 'Marked enemy takes x2 dmg and gets mobbed.' },
@@ -113,7 +113,7 @@ export const HOSTS = {
     codex: '99.9% accurate, except on faces. Has identified the office ficus as the CFO four times.',
   },
   hunter: {
-    name: 'Hunter', layer: 3, hp: 140, speed: 115, r: 17, shape: 'hunter', bits: 6,
+    name: 'Hunter', layer: 3, hp: 140, speed: 115, r: 17, jump: 140, shape: 'hunter', bits: 6,
     attack: { type: 'shot', dmg: 10, rate: 2, range: 320, speed: 380 },
     ai: 'chase',
     special: { id: 'pursuit', cd: 6, name: 'PURSUIT', desc: 'Speed x2 for 2.5s.' },
@@ -123,7 +123,7 @@ export const HOSTS = {
 
   // ---------- Layer 4: The Core ----------
   admin: {
-    name: 'Admin Process', layer: 4, hp: 100, speed: 70, r: 17, shape: 'admin', bits: 5,
+    name: 'Admin Process', layer: 4, hp: 100, speed: 70, r: 17, jump: 160, shape: 'admin', bits: 5,
     attack: { type: 'shot', dmg: 9, rate: 1.8, range: 320, speed: 360 },
     ai: 'kite',
     special: { id: 'sudo', cd: 10, name: 'SUDO', desc: '-20 Trace.' },
@@ -131,7 +131,7 @@ export const HOSTS = {
     codex: 'Has all the permissions. Uses them exclusively to change the desktop wallpaper of people it dislikes.',
   },
   mirror: {
-    name: 'Mirror Daemon', layer: 4, hp: 70, speed: 90, r: 15, shape: 'mirror', bits: 5,
+    name: 'Mirror Daemon', layer: 4, hp: 70, speed: 90, r: 15, jump: 165, shape: 'mirror', bits: 5,
     attack: { type: 'shot', dmg: 7, rate: 2, range: 300, speed: 340 },
     ai: 'strafe',
     special: { id: 'reflect', cd: 7, name: 'REFLECT', desc: 'Reflect bullets for 2.5s.' },
@@ -139,7 +139,7 @@ export const HOSTS = {
     codex: 'Copies everything it sees. Its personality is 100% borrowed. It is very popular at parties.',
   },
   quantum: {
-    name: 'Quantum Thread', layer: 4, hp: 60, speed: 100, r: 14, shape: 'quantum', bits: 5,
+    name: 'Quantum Thread', layer: 4, hp: 60, speed: 100, r: 14, jump: 170, shape: 'quantum', bits: 5,
     attack: { type: 'shot', dmg: 6, rate: 2.4, range: 300, speed: 360 },
     ai: 'strafe',
     special: { id: 'twin', cd: 9, name: 'SUPERPOSITION', desc: 'A twin copies you for 5s.' },
@@ -147,7 +147,7 @@ export const HOSTS = {
     codex: 'Exists in two states at once: "working" and "on break." Management only ever observes one.',
   },
   manager: {
-    name: 'Middle Manager', layer: 4, hp: 120, speed: 55, r: 19, shape: 'manager', bits: 6,
+    name: 'Middle Manager', layer: 4, hp: 120, speed: 55, r: 19, jump: 145, shape: 'manager', bits: 6,
     attack: { type: 'shot', dmg: 8, rate: 1.5, range: 300, speed: 320, count: 2, spread: 0.25 },
     ai: 'chase',
     special: { id: 'delegate', cd: 9, name: 'DELEGATE', desc: '3 nearest enemies fight each other 3s.' },

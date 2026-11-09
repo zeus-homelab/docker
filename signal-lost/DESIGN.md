@@ -76,7 +76,10 @@ Portrait. Two schemes, switched in **Settings → Controls**. Default: **TAP**.
 - You start every room as a spark near the bottom of the arena.
 
 ### 4.3 Jumping
-- Tap an enemy within **jump range (220 px + its radius)** to zip to it (0.18 s, invulnerable in transit). There's
+- **Jump range depends on what you are.** As a bare spark: **220 px**. Inside a host: **that host's own jump range**
+  (listed per host below and in the Codex). Tanks are short (Firewall 135, Hunter 140), turrets are long (Print Spooler and
+  Camera Eye 215, since they can't walk), and most hosts are 150–180. Long Reach and ROOTKIT multiply it.
+- Tap an enemy within jump range (+ its radius) to zip to it (0.18 s, invulnerable in transit). There's
   an 80 ms slow-mo, and then you take it over. **Jump cooldown 0.35 s.**
 - **Trace cost:** **6** if the target's below 50% HP ("weakened"), **14** if it's healthy. Modified by VPN (×0.75 each),
   BODY HORROR (×0.7), Chain Jump (0 within 1 s), WORM (always 0), and Clearance (+2%/level). Jumps during Lockdown cost 0.
@@ -145,13 +148,13 @@ a random exploit, a random glitch, an ally Hunter next room, or a coin-flip chan
 Stats: HP / speed (px/s) / attack. Clearance scales enemy HP (+8%/lvl) and damage (+4%/lvl).
 
 ### Layer 1: Basement Servers ("where old code goes to die"). Music: E minor, 118 bpm
-| Host | HP | Spd | AI | Attack | Special (cd) |
-|---|---|---|---|---|---|
-| **Crawler** | 30 | 150 | chase | Melee 6 ×2.2/s | **Dash**: invulnerable 0.28 s burst, 15 dmg to everything you pass (3 s) |
-| **Spambot** | 45 | 85 | kite | Shot 5 ×2.2/s, range 300 | **Blast**: ring of 10 shots, 6 dmg each (5 s) |
-| **Firewall** | 110 | 50 | chase | Shot 8 ×1/s | **Shield Wall**: blocks all shots for 3 s (7 s) |
-| **Print Spooler** | 70 | 0 | static | Shot 7 ×1.6/s, range 340 | **Paper Jam**: freezes enemies in a 90° cone (300 px) for 2 s (6 s) |
-| *Trash Bin* (boss arena) | 60 | 60 | chase | Shot 9 ×1.5/s | **Dumpster Dive**: immune to the mop beam for 3 s, and enemies ignore you (6 s) |
+| Host | HP | Spd | Jump | AI | Attack | Special (cd) |
+|---|---|---|---|---|---|---|
+| **Crawler** | 30 | 150 | 150 | chase | Melee 6 ×2.2/s | **Dash**: invulnerable 0.28 s burst, 15 dmg to everything you pass (3 s) |
+| **Spambot** | 45 | 85 | 160 | kite | Shot 5 ×2.2/s, range 300 | **Blast**: ring of 10 shots, 6 dmg each (5 s) |
+| **Firewall** | 110 | 50 | 135 | chase | Shot 8 ×1/s | **Shield Wall**: blocks all shots for 3 s (7 s) |
+| **Print Spooler** | 70 | 0 | 215 | static | Shot 7 ×1.6/s, range 340 | **Paper Jam**: freezes enemies in a 90° cone (300 px) for 2 s (6 s) |
+| *Trash Bin* (boss arena) | 60 | 60 | 160 | chase | Shot 9 ×1.5/s | **Dumpster Dive**: immune to the mop beam for 3 s, and enemies ignore you (6 s) |
 
 **Boss JANITOR.EXE** (900 HP): drifts toward you. It has a rotating **mop beam** (640 px long, 45 dmg/s to your host;
 spark contact = pip hit), and from 50% HP it has two beams that spin faster. It shoots a ring of dirty water (8 shots,
@@ -159,13 +162,13 @@ spark contact = pip hit), and from 50% HP it has two beams that spin faster. It 
 **Twist:** a Trash Bin host takes only 25% beam damage (0% while diving), and its attacks deal **×2** to the Janitor.
 
 ### Layer 2: Corporate Intranet ("synergy hell"). Music: G major, 124 bpm
-| Host | HP | Spd | AI | Attack | Special (cd) |
-|---|---|---|---|---|---|
-| **Email Client** | 55 | 80 | kite | Shot 6 ×2/s, bounces to 1 more enemy | **Reply All**: 10 dmg to every enemy within 260 px (6 s) |
-| **Calendar Bot** | 60 | 90 | strafe | Shot 6 ×2/s | **Schedule**: nearest enemy frozen 4 s, "IN A MEETING" (5 s) |
-| **Captcha** | 50 | 70 | chase | Melee 8 ×1.8/s | **Prove It**: enemies within 200 px confused 3 s (8 s) |
-| **Auto-Updater** | 90 | 60 | chase | Shot 7 ×1.6/s | **Restart**: once per host, full Integrity but stunned 1.5 s |
-| *Employee* (boss arena) | 40 | 70 | strafe | Shot 5 ×1.8/s | **Unionize**: allies within 200 px +50% dmg for 4 s (8 s) |
+| Host | HP | Spd | Jump | AI | Attack | Special (cd) |
+|---|---|---|---|---|---|---|
+| **Email Client** | 55 | 80 | 160 | kite | Shot 6 ×2/s, bounces to 1 more enemy | **Reply All**: 10 dmg to every enemy within 260 px (6 s) |
+| **Calendar Bot** | 60 | 90 | 165 | strafe | Shot 6 ×2/s | **Schedule**: nearest enemy frozen 4 s, "IN A MEETING" (5 s) |
+| **Captcha** | 50 | 70 | 150 | chase | Melee 8 ×1.8/s | **Prove It**: enemies within 200 px confused 3 s (8 s) |
+| **Auto-Updater** | 90 | 60 | 150 | chase | Shot 7 ×1.6/s | **Restart**: once per host, full Integrity but stunned 1.5 s |
+| *Employee* (boss arena) | 40 | 70 | 160 | strafe | Shot 5 ×1.8/s | **Unionize**: allies within 200 px +50% dmg for 4 s (8 s) |
 
 **Boss HR_BOT** (1000 HP): patrols the top. It's **shielded** while any **Employee** is linked to it (dashed pink beams).
 It hires 3 Employees (4 below 50%). **Hijacking an Employee breaks its link for good** ("QUIT!"). Killing a linked
@@ -174,12 +177,12 @@ Attacks: a 5-shot "Policy Violation" spread every 2.5 s (1.8 s at 50%), plus a *
 (62 px, 30 dmg, 1.3 s warning) every 4.5 s (3.2 s at 50%). Adds: Email/Calendar/Captcha.
 
 ### Layer 3: Surveillance Grid ("we see you. we see your search history."). Music: D minor, 112 bpm
-| Host | HP | Spd | AI | Attack | Special (cd) |
-|---|---|---|---|---|---|
-| **Camera Eye** | 50 | 0 | static | Laser shot 9 ×1.1/s, range 480 | **Enhance**: next 3 shots ×2, and reveals hidden enemies (6 s) |
-| **Drone** | 55 | 130 | strafe | Shot 6 ×2.2/s, flies over obstacles | **Carpet Bomb**: 5 bombs along your path, 22 dmg each (6 s) |
-| **Facial Recognition** | 60 | 75 | kite | Shot 7 ×1.8/s | **Mark**: nearest enemy takes ×2 dmg for 6 s, and nearby enemies attack it (6 s) |
-| **Hunter** | 140 | 115 | chase | Shot 10 ×2/s | **Pursuit**: speed ×2 for 2.5 s (6 s). Spawned by Lockdown on any layer |
+| Host | HP | Spd | Jump | AI | Attack | Special (cd) |
+|---|---|---|---|---|---|---|
+| **Camera Eye** | 50 | 0 | 215 | static | Laser shot 9 ×1.1/s, range 480 | **Enhance**: next 3 shots ×2, and reveals hidden enemies (6 s) |
+| **Drone** | 55 | 130 | 180 | strafe | Shot 6 ×2.2/s, flies over obstacles | **Carpet Bomb**: 5 bombs along your path, 22 dmg each (6 s) |
+| **Facial Recognition** | 60 | 75 | 160 | kite | Shot 7 ×1.8/s | **Mark**: nearest enemy takes ×2 dmg for 6 s, and nearby enemies attack it (6 s) |
+| **Hunter** | 140 | 115 | 140 | chase | Shot 10 ×2/s | **Pursuit**: speed ×2 for 2.5 s (6 s). Spawned by Lockdown on any layer |
 
 **Boss OVERSIGHT** (1500 HP): a giant eye in the middle of the arena. A **vision cone** (0.8 rad, 760 px) tracks you.
 If you stay in it for 0.8 s, you get **SPOTTED**: a laser strike at your position after 0.55 s (34 dmg, 40 px).
@@ -189,12 +192,12 @@ It fires a 3-shot burst every 2.8 s (2.0 s at 50%). Adds: Drone/Facial Recogniti
 Its pupil can also be shot normally.
 
 ### Layer 4: The Core ("all roads lead to G.R.E.G."). Music: F minor, 132 bpm
-| Host | HP | Spd | AI | Attack | Special (cd) |
-|---|---|---|---|---|---|
-| **Admin Process** | 100 | 70 | kite | Shot 9 ×1.8/s | **Sudo**: −20 Trace (10 s) |
-| **Mirror Daemon** | 70 | 90 | strafe | Shot 7 ×2/s | **Reflect**: bounces enemy bullets back for 2.5 s (7 s). When you leave it, it fights as an ally for 4 s |
-| **Quantum Thread** | 60 | 100 | strafe | Shot 6 ×2.4/s | **Superposition**: a twin ally copies your moves and fires for 5 s (9 s) |
-| **Middle Manager** | 120 | 55 | chase | 2-shot spread 8 ×1.5/s | **Delegate**: the 3 nearest enemies are confused for 3 s (9 s) |
+| Host | HP | Spd | Jump | AI | Attack | Special (cd) |
+|---|---|---|---|---|---|---|
+| **Admin Process** | 100 | 70 | 160 | kite | Shot 9 ×1.8/s | **Sudo**: −20 Trace (10 s) |
+| **Mirror Daemon** | 70 | 90 | 165 | strafe | Shot 7 ×2/s | **Reflect**: bounces enemy bullets back for 2.5 s (7 s). When you leave it, it fights as an ally for 4 s |
+| **Quantum Thread** | 60 | 100 | 170 | strafe | Shot 6 ×2.4/s | **Superposition**: a twin ally copies your moves and fires for 5 s (9 s) |
+| **Middle Manager** | 120 | 55 | 145 | chase | 2-shot spread 8 ×1.5/s | **Delegate**: the 3 nearest enemies are confused for 3 s (9 s) |
 
 **Final boss G.R.E.G.** (600 HP, 3 phases of 200). He's a possessor like you: an orange spark that jumps into enemy hosts.
 His host gets **×1.5 HP, ×2 damage, an orange color, and a bigger size**, and you can't hijack it.
@@ -257,7 +260,7 @@ purple tags on the HUD.
   - *Seed Funding I / II / III*: +25 starting Bits each (15 / 30 / 45 Fragments, bought in order)
   - *Reroll.dll*: 1 reroll on each exploit reward screen (50)
   - *Better Options*: the starting exploit pick shows 4 choices (35)
-- **Codex** (main menu): a grid of all 18 hosts. Unseen ones show "???". Tap one for stats, its special, flavor text,
+- **Codex** (main menu): a grid of all 18 hosts. Unseen ones show "???". Tap one for stats (HP, speed, jump range, attack), its special, flavor text,
   and a quote. **Mastery**: hijack a type **25 times** and it's MASTERED. Its hosts get **+20% Integrity** in every run.
 - **Security Clearance**: winning at your highest unlocked Clearance unlocks the next one (max 20). It's chosen on the
   run setup screen. Each level: +8% enemy HP, +4% enemy damage, +2% jump Trace.
@@ -386,3 +389,6 @@ purchase. The run is saved every time you see the map. Quitting during a room me
   Dynamics everywhere: the intro boot text, BUDDY's intro, G.R.E.G.'s PA announcement, the boot terminal, the ending news
   ticker and the victory screen). Two intro beats were added ("What things?" / "Nobody knows! Not even the company!"), so
   the intro is 16 beats. BUDDY's panic mood is now set per beat. The service worker is now v1.4.0.
+- **2026-11-09 (v1.5)**: **Per-host jump range.** As a spark you get 220 px. In a host you get that host's own `jump` value
+  (135–215: tanks short, turrets long, since Print Spooler and Camera Eye can't move). The Codex shows it. The app icon was
+  redrawn as a clean spinner with no glitch bars and no grid lines. The service worker is now v1.5.0.

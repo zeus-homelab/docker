@@ -198,8 +198,11 @@ export class GameScene {
   }
 
   // ---------- modifiers ----------
+  // Bare spark: full 220. Inside a host: that host's own jump range (turrets reach furthest).
   jumpRange() {
-    let r = JUMP_RANGE * (1 + 0.25 * has(this.run, 'longreach'));
+    const h = this.pl.host;
+    const base = h && this.pl.mode === 'host' ? h.def.jump || 160 : JUMP_RANGE;
+    let r = base * (1 + 0.25 * has(this.run, 'longreach'));
     if (this.run.variant === 'rootkit') r *= 1.2;
     return r;
   }

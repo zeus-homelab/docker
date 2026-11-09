@@ -695,7 +695,7 @@ export class CodexScene extends MenuScene {
       text(ctx, h.name.toUpperCase(), W / 2, py + 130, { size: 24, color: COLORS.player, weight: 'bold' });
       text(ctx, h.bossOnly ? 'BOSS ARENA ONLY' : `LAYER ${h.layer} · ${LAYERS[h.layer].name}`, W / 2, py + 156, { size: 12, color: COLORS.dim });
       const at = h.attack;
-      const stats = [`HP ${h.hp}`, `SPEED ${h.speed || 'TURRET'}`, `${at.type === 'melee' ? 'MELEE' : 'SHOT'} ${at.dmg} x ${at.rate}/s`];
+      const stats = [`HP ${h.hp}`, `SPEED ${h.speed || 'TURRET'}`, `JUMP ${h.jump}`, `${at.type === 'melee' ? 'MELEE' : 'SHOT'} ${at.dmg}x${at.rate}/s`];
       text(ctx, stats.join('  ·  '), W / 2, py + 186, { size: 13, color: COLORS.white });
       text(ctx, `SPECIAL: ${h.special.name}`, W / 2, py + 218, { size: 15, color: COLORS.gold, weight: 'bold' });
       wrap(ctx, h.special.desc, pw - 40, 13).forEach((l, i) => text(ctx, l, W / 2, py + 240 + i * 16, { size: 13, color: COLORS.white }));
