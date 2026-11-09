@@ -20,3 +20,9 @@ Highly Suggest you make a few docker networks before deploying any of the docker
 Once you make those you can deploy the docker-compose.yml files with the Network Statements uncommented.
 
 
+
+
+---Signal Lost (game)---
+
+`signal-lost/` holds **Signal Lost: Hijack**, an Android roguelite. See `signal-lost/README.md`.
+Host it on the homelab with `signal-lost.yml` (port 8088), or download the APK from the GitHub Actions run.

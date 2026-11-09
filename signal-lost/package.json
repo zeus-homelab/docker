@@ -1,0 +1,16 @@
+{
+  "name": "signal-lost",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Signal Lost: Hijack - a possession roguelite for Android",
+  "scripts": {
+    "serve": "python3 -m http.server 8088 --directory web",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/android": "6.2.0",
+    "@capacitor/cli": "6.2.0",
+    "@capacitor/core": "6.2.0"
+  }
+}

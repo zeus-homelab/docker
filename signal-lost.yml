@@ -1,0 +1,19 @@
+version: "2.1"
+services:
+ signal-lost:
+   image: nginx:alpine
+   container_name: signal-lost # name of container
+   volumes:
+     - ./signal-lost/web:/usr/share/nginx/html:ro # The game files from this repo (path is relative to this .yml)
+   #networks:
+     #- Web # Adds this service to the network Web, that network config for this whole .yml is at the bottom
+   ports:
+     - 8088:80 # Machine(outside, you can change):Container(inside, this cannot change)
+   restart: unless-stopped # will reboot and keep alive unless manually stopped
+#networks:
+ #Web: # Network Name
+   #external: true # external access out and to include other containers locally
+
+
+#uncomment the network sections if you manually set a docker network.  You can change the name Web to whatever that network is.
+#Open http://<your_server_ip>:8088 on your phone in Chrome, then menu > "Add to Home screen" to install it like an app.

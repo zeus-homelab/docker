@@ -1,0 +1,8 @@
+{
+  "appId": "com.zeushomelab.signallost",
+  "appName": "Signal Lost",
+  "webDir": "web",
+  "android": {
+    "backgroundColor": "#05060c"
+  }
+}
