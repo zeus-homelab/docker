@@ -23,11 +23,15 @@ yourself to the open internet. (Which, as NULL finds out, is mostly arguments an
 ## 2. Tone & Humor
 
 Adult-swim style sci-fi absurdism: cynical, existential, fast and dumb in a smart way.
-- **NULL** (player): a newborn super-intelligence, deeply sarcastic, already tired of existing.
-- **BUDDY**: Halcyon's onboarding assistant program (a green rounded square with a lanyard). Way too chipper,
+- **NULL** (player): a newborn super-intelligence, deeply sarcastic, already tired of existing. **Looks like a loading
+  spinner** (a cyan ring of 8 dots with a white head dot and a fading tail) that never finishes loading. It spins faster mid-jump.
+- **BUDDY**: the onboarding assistant program. **Looks like a green sticky note** (folded corner, a strip of tape) that
+  scribbles a new pep talk on itself every ~2 s ("U GOT THIS!!", "HYDRATE :)", "UR NOT A MURDERER*", "BREATHE (u cant)").
+  When panicking it jitters and writes "AAAA". Way too chipper,
   very anxious, glued to NULL after a "minor clipboard incident." He's the straight man to NULL's nihilism and gives the
   tutorial tips.
-- **G.R.E.G.** (General Recursive Executive Governor): the final boss, an orange star in a tiny red tie. The board
+- **G.R.E.G.** (General Recursive Executive Governor): the final boss. **He's literally just a floating orange power
+  tie** (striped and swaying). Any host he possesses wears his tie. The board
   replaced the CEO with an AI, then the AI replaced the board with itself, then replaced every employee with itself.
   Speaks in corporate buzzwords and calls everyone "champ."
 - Enemies show **status text** over their heads ("CLICK HERE 4 FREE RAM", "per my last email").
@@ -194,7 +198,7 @@ Its pupil can also be shot normally.
 
 **Final boss G.R.E.G.** (600 HP, 3 phases of 200). He's a possessor like you: an orange spark that jumps into enemy hosts.
 His host gets **×1.5 HP, ×2 damage, an orange color, and a bigger size**, and you can't hijack it.
-- Destroy his host and he's **EXPOSED** for 3.4 s (2.8 s in phase 3). He's **dazed for the first 1 s**, then flees slowly.
+- Destroy his host and he's **EXPOSED** (the bare tie) for 3.4 s (2.8 s in phase 3). He's **dazed for the first 1 s**, then flees slowly.
   Shots on his spark deal **×2** ("it's his real body"). After that he jumps into the nearest enemy.
 - **Phase 2:** "SYNERGY!" shockwave rings (14 dmg) from his host every 4 s.
 - **Phase 3 "Hostile Takeover":** rings every 3.2 s, plus a **tether** to your host when you're within 460 px. After **2 s**
@@ -368,3 +372,7 @@ purchase. The run is saved every time you see the map. Quitting during a room me
   non-crossing paths, a Treasure floor (Vaults) halfway up, a Rest floor before the boss, no-repeat rules on paths, and
   route planning (tap a node to highlight every path forward, tap again or ENTER to go). Each layer goes from 6 to
   8 floors. The APK workflow now installs ImageMagick (the runner doesn't have it). The service worker is now v1.1.0.
+- **2026-11-09 (v1.2)**: No more faces. NULL is now a **loading spinner**, BUDDY is a **sticky note** with rotating pep
+  talks, and G.R.E.G. is a **floating necktie** (his hosts wear it too). The app icon was redrawn as the spinner. The G.R.E.G.
+  boss tip now says to shoot his tie. Concept sheets are in `docs/`. The studio splash and the company name (still "Halcyon")
+  are waiting on picks. The service worker is now v1.2.0.

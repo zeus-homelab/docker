@@ -3,6 +3,7 @@ import { TAU, clamp, lerp, dist, dist2, angle, makeRng, R, COLORS, glowStroke, g
 import { HOSTS, LAYER_HOSTS, LAYERS, BOSSES, GLITCHES, BUDDY_TIPS, ROOM_CLEAR_QUIPS, EXPLOITS } from './data.js';
 import { has, hasGlitch } from './run.js';
 import { audio } from './audio.js';
+import { drawNull, drawGreg } from './ui.js';
 
 const JUMP_RANGE = 220;
 const SPARK_SPEED = 270;
@@ -1919,18 +1920,11 @@ export class GameScene {
       if (blink && pl.mode === 'spark') return;
       ctx.save();
       if (pl.ghost > 0) ctx.globalAlpha = 0.35;
-      const r = 7 + Math.sin(this.t * 20) * 1.5;
-      glowCircle(ctx, pl.x, pl.y, r, COLORS.player, 2, 0.4);
-      ctx.fillStyle = COLORS.white;
-      ctx.beginPath();
-      ctx.arc(pl.x, pl.y, 3, 0, TAU);
-      ctx.fill();
-      // little face: two dots, flat mouth. NULL is unimpressed.
+      // NULL is a loading spinner. It spins faster mid-jump.
+      drawNull(ctx, pl.x, pl.y, 12, this.t, pl.mode === 'jumping' ? 3 : 1.2);
       if (pl.mode === 'spark') {
-        ctx.restore();
-        ctx.save();
-        ctx.globalAlpha = 0.7;
-        glowCircle(ctx, pl.x, pl.y, 14 + Math.sin(this.t * 4) * 2, COLORS.player, 1, 0);
+        ctx.globalAlpha *= 0.5;
+        glowCircle(ctx, pl.x, pl.y, 18 + Math.sin(this.t * 4) * 2, COLORS.player, 1, 0);
       }
       ctx.restore();
     }
@@ -2177,6 +2171,7 @@ export function drawUnit(ctx, u, g) {
   if (u.st.hidden > 0 && !u.possessed) ctx.globalAlpha *= 0.3;
   if (u.faction === 'ally' && u.allyT !== Infinity && u.allyT < 1) ctx.globalAlpha *= 0.4 + 0.6 * (Math.floor(t * 10) % 2);
   drawShape(ctx, u.def.shape, x, y, u.r, col, u.face, t, u);
+  if (u.greg) drawGreg(ctx, x, y + u.r * 0.9, u.r * 0.55, t);
   // statuses
   if (u.st.frozen > 0) {
     ctx.globalAlpha = 0.6;
@@ -3241,28 +3236,11 @@ class Greg extends BossBase {
       this.drawQuipAt(ctx, this.x, this.y - (this.host ? this.host.r : 20) - 30);
       return;
     }
-    // GREG spark: orange star with a tiny tie. He's very proud of the tie.
+    // GREG out of a host: just the power tie, flapping around.
     ctx.save();
     if (this.dead) ctx.globalAlpha = 1 - this.deathT / 1.5;
-    const col = this.hitFlash > 0 ? COLORS.white : COLORS.greg;
-    poly(ctx, this.x, this.y, 16 + Math.sin(this.t * 14) * 2, 5, this.t * 2, 0.5);
-    ctx.save();
-    ctx.globalAlpha *= 0.35;
-    ctx.fillStyle = col;
-    ctx.fill();
-    ctx.restore();
-    glowStroke(ctx, col, 2.5, 8);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(this.x - 5, this.y - 4, 3, 3);
-    ctx.fillRect(this.x + 2, this.y - 4, 3, 3);
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y + 3);
-    ctx.lineTo(this.x - 3, this.y + 8);
-    ctx.lineTo(this.x, this.y + 14);
-    ctx.lineTo(this.x + 3, this.y + 8);
-    ctx.closePath();
-    ctx.fillStyle = COLORS.enemy;
-    ctx.fill();
+    if (this.hitFlash > 0) ctx.globalAlpha *= 0.5;
+    drawGreg(ctx, this.x, this.y, 18, this.t * (this.dazed > 0 ? 6 : 2));
     ctx.restore();
     if (this.state === 'exposed' && !this.dead) {
       ctx.save();

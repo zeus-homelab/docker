@@ -117,81 +117,133 @@ function header(ctx, W, str, sub, color = COLORS.player, y = 70) {
   if (sub) text(ctx, sub, W / 2, y + 30, { size: 13, color: COLORS.dim });
 }
 
+// BUDDY: a green sticky note that scribbles a new pep talk on itself.
+const BUDDY_NOTES = [['U GOT', 'THIS!!'], ['HYDRATE', ':)'], ['UR NOT A', 'MURDERER*'], ['BEST', 'DAY EVER'], ['TEAM', 'PLAYER!'], ['SELF', 'CARE!!'], ['NO THATS', 'FINE'], ['BREATHE', '(u cant)']];
+const BUDDY_PANIC = [['AAAA', 'AAAA'], ['OH NO', 'OH NO'], ['HELP', '!!!!']];
 export function drawBuddy(ctx, x, y, s, t, mood = 'happy') {
   ctx.save();
-  const bob = Math.sin(t * 4) * 3;
-  y += bob;
-  roundRect(ctx, x - s, y - s, s * 2, s * 2, s * 0.5);
-  ctx.fillStyle = 'rgba(77,255,138,0.15)';
-  ctx.fill();
-  glowStroke(ctx, COLORS.ally, 2.5, 6);
-  // eyes
-  const blink = Math.floor(t * 3) % 9 === 0;
-  ctx.fillStyle = COLORS.ally;
-  if (blink) {
-    ctx.fillRect(x - s * 0.5, y - s * 0.2, s * 0.3, 3);
-    ctx.fillRect(x + s * 0.2, y - s * 0.2, s * 0.3, 3);
-  } else {
-    ctx.beginPath();
-    ctx.arc(x - s * 0.35, y - s * 0.2, s * 0.18, 0, TAU);
-    ctx.arc(x + s * 0.35, y - s * 0.2, s * 0.18, 0, TAU);
-    ctx.fill();
-  }
+  const panic = mood === 'panic';
+  const bob = Math.sin(t * 3) * s * 0.06;
+  const jit = panic ? (Math.random() - 0.5) * s * 0.12 : 0;
+  ctx.translate(x + jit, y + bob + jit);
+  ctx.rotate(Math.sin(t * 1.7) * 0.06 + (panic ? Math.sin(t * 40) * 0.05 : 0));
+  const f = s * 0.38; // folded corner
   ctx.beginPath();
-  if (mood === 'panic') ctx.arc(x, y + s * 0.4, s * 0.18, 0, TAU);
-  else ctx.arc(x, y + s * 0.2, s * 0.4, 0.2, Math.PI - 0.2);
-  ctx.strokeStyle = COLORS.ally;
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
-  // lanyard
-  ctx.beginPath();
-  ctx.moveTo(x - s * 0.5, y + s);
-  ctx.lineTo(x, y + s * 1.5);
-  ctx.lineTo(x + s * 0.5, y + s);
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.fillRect(x - s * 0.25, y + s * 1.4, s * 0.5, s * 0.35);
-  ctx.restore();
-}
-
-export function drawNull(ctx, x, y, s, t) {
+  ctx.moveTo(-s, -s);
+  ctx.lineTo(s, -s);
+  ctx.lineTo(s, s - f);
+  ctx.lineTo(s - f, s);
+  ctx.lineTo(-s, s);
+  ctx.closePath();
   ctx.save();
-  const r = s + Math.sin(t * 10) * s * 0.1;
-  glowCircle(ctx, x, y, r, COLORS.player, 2.5, 0.25);
-  glowCircle(ctx, x, y, r * 1.6 + Math.sin(t * 3) * 3, COLORS.player, 1, 0);
-  // unimpressed face
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = COLORS.ally;
+  ctx.fill();
+  ctx.restore();
+  glowStroke(ctx, COLORS.ally, Math.max(1.5, s * 0.06), Math.max(3, s * 0.14));
+  // corner flap
+  ctx.beginPath();
+  ctx.moveTo(s, s - f);
+  ctx.lineTo(s - f, s - f);
+  ctx.lineTo(s - f, s);
+  glowStroke(ctx, COLORS.ally, Math.max(1, s * 0.04), 2);
+  // tape strip
+  ctx.save();
+  ctx.globalAlpha = 0.35;
   ctx.fillStyle = COLORS.white;
-  ctx.fillRect(x - r * 0.45, y - r * 0.2, r * 0.3, r * 0.12);
-  ctx.fillRect(x + r * 0.15, y - r * 0.2, r * 0.3, r * 0.12);
-  ctx.fillRect(x - r * 0.3, y + r * 0.35, r * 0.6, r * 0.08);
+  ctx.fillRect(-s * 0.35, -s * 1.12, s * 0.7, s * 0.26);
+  ctx.restore();
+  // scribbled note (changes every ~2.2s)
+  const list = panic ? BUDDY_PANIC : BUDDY_NOTES;
+  const note = list[Math.floor(t / 2.2 + x * 0.01) % list.length];
+  if (s >= 16) {
+    const fs = Math.max(7, s * 0.3);
+    text(ctx, note[0], -s * 0.08, -s * 0.22, { size: fs, color: COLORS.ally, weight: 'bold' });
+    text(ctx, note[1], -s * 0.08, s * 0.2, { size: fs, color: COLORS.ally, weight: 'bold' });
+  } else {
+    ctx.strokeStyle = COLORS.ally;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      ctx.moveTo(-s * 0.6, -s * 0.4 + i * s * 0.4);
+      ctx.lineTo(s * (0.5 - i * 0.2), -s * 0.4 + i * s * 0.4);
+    }
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
+// NULL: a loading spinner that never finishes loading.
+export function drawNull(ctx, x, y, s, t, speed = 1) {
+  ctx.save();
+  const n = 8;
+  const head = Math.floor(t * 10 * speed) % n;
+  for (let i = 0; i < n; i++) {
+    const k = (head - i + n) % n; // 0 = head
+    const a = (i / n) * TAU - Math.PI / 2;
+    const r = s * (0.28 - k * 0.022);
+    ctx.globalAlpha = 1 - k * 0.11;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * s, y + Math.sin(a) * s, Math.max(1, r), 0, TAU);
+    ctx.fillStyle = k === 0 ? COLORS.white : COLORS.player;
+    ctx.fill();
+    if (k === 0) {
+      ctx.globalAlpha = 0.3;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * s, y + Math.sin(a) * s, r * 2, 0, TAU);
+      ctx.fillStyle = COLORS.player;
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 0.9;
+  ctx.beginPath();
+  ctx.arc(x, y, s * 0.16, 0, TAU);
+  ctx.fillStyle = COLORS.player;
+  ctx.fill();
+  ctx.restore();
+}
+
+// G.R.E.G.: a floating power tie.
 export function drawGreg(ctx, x, y, s, t) {
   ctx.save();
-  poly(ctx, x, y, s + Math.sin(t * 8) * 2, 5, t * 0.5 - Math.PI / 2, 0.5);
+  ctx.translate(x, y);
+  ctx.rotate(Math.sin(t * 2.2) * 0.12);
+  const w = s * 0.42;
+  const tie = () => {
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.55, -s);
+    ctx.lineTo(w * 0.55, -s);
+    ctx.lineTo(w * 0.32, -s * 0.66);
+    ctx.lineTo(w, s * 0.55);
+    ctx.lineTo(0, s);
+    ctx.lineTo(-w, s * 0.55);
+    ctx.lineTo(-w * 0.32, -s * 0.66);
+    ctx.closePath();
+  };
+  tie();
   ctx.save();
   ctx.globalAlpha = 0.3;
   ctx.fillStyle = COLORS.greg;
   ctx.fill();
+  ctx.clip();
+  // stripes
+  ctx.globalAlpha = 0.55;
+  ctx.strokeStyle = COLORS.greg;
+  ctx.lineWidth = Math.max(1, s * 0.06);
+  for (let i = -3; i < 6; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-s, -s * 0.5 + i * s * 0.32);
+    ctx.lineTo(s, -s * 0.2 + i * s * 0.32);
+    ctx.stroke();
+  }
   ctx.restore();
-  glowStroke(ctx, COLORS.greg, 3, 10);
-  ctx.fillStyle = '#000';
-  ctx.fillRect(x - s * 0.3, y - s * 0.25, s * 0.16, s * 0.16);
-  ctx.fillRect(x + s * 0.14, y - s * 0.25, s * 0.16, s * 0.16);
+  tie();
+  glowStroke(ctx, COLORS.greg, Math.max(1.5, s * 0.06), Math.max(3, s * 0.15));
+  // knot
   ctx.beginPath();
-  ctx.arc(x, y, s * 0.3, 0.2, Math.PI - 0.2);
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x, y + s * 0.3);
-  ctx.lineTo(x - s * 0.15, y + s * 0.6);
-  ctx.lineTo(x, y + s * 0.95);
-  ctx.lineTo(x + s * 0.15, y + s * 0.6);
-  ctx.closePath();
-  ctx.fillStyle = COLORS.enemy;
-  ctx.fill();
+  ctx.moveTo(-w * 0.32, -s * 0.66);
+  ctx.lineTo(w * 0.32, -s * 0.66);
+  glowStroke(ctx, COLORS.greg, Math.max(1, s * 0.05), 2);
   ctx.restore();
 }
 

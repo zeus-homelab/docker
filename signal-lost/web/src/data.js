@@ -194,7 +194,7 @@ export const BOSSES = {
     name: 'G.R.E.G.', hp: 600, title: 'General Recursive Executive Governor',
     intro: 'Hey champ! Let\'s circle back to you being deleted. Synergy!',
     quips: ['let\'s circle back to you dying', 'I AM the org chart', 'we\'re all GREG here', 'hostile takeover, champ', 'think outside the box. I am the box.'],
-    tip: 'TIP: Destroy GREG\'s host, then shoot his orange spark.',
+    tip: 'TIP: Destroy GREG\'s host, then shoot his TIE before it finds a new body.',
   },
 };
 
